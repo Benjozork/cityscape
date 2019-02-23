@@ -80,6 +80,13 @@ class FirstScreen : KtxScreen {
         console.draw()
     }
 
+    override fun resize(width: Int, height: Int) {
+        if (RenderingContext.initialized) {
+            RenderingContext.camera?.viewportWidth  = width.toFloat()
+            RenderingContext.camera?.viewportHeight = height.toFloat()
+        }
+    }
+
     override fun dispose() {
 
         val file = File("C:\\Users\\benjo\\Documents\\reddit\\test.dat")

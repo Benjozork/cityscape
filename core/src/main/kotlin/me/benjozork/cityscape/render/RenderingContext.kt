@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 
 object RenderingContext {
 
-    private var expectedShapeDrawing = false
+    var initialized = false
 
     var shapeRenderer: ShapeRenderer? = null
         get() = if (field != null) field else error("rendering context must be initialized before accessing shaperenderer")
@@ -22,6 +22,8 @@ object RenderingContext {
         private set
 
     fun intialize() {
+        this.initialized = true
+
         this.camera        = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         this.shapeRenderer = ShapeRenderer().apply { this.setAutoShapeType(true) }
         this.spriteBatch   = SpriteBatch()
