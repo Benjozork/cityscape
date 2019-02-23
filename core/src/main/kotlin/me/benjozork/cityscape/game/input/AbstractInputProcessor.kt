@@ -2,13 +2,10 @@ package me.benjozork.cityscape.game.input
 
 import com.badlogic.gdx.InputProcessor
 
-import me.benjozork.cityscape.game.editor.tool.EditorTool
 
 /**
  * A special implementation of [InputProcessor] that isn't an interface, therefore
  * not requiring to implement all methods, including ones we don't use.
- *
- * @constructor the parent associated [EditorTool]
  */
 open class AbstractInputProcessor : InputProcessor {
 
