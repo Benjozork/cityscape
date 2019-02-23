@@ -15,6 +15,7 @@ import me.benjozork.cityscape.game.GameWorld
 import me.benjozork.cityscape.game.`object`.Road
 import me.benjozork.cityscape.game.`object`.TEST_ROAD_WIDTH
 import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
+import me.benjozork.cityscape.game.input.AutoSnapper
 
 import me.benjozork.cityscape.render.RenderingContext
 
@@ -107,7 +108,7 @@ class RoadTool : EditorTool() {
 
                 if (parentTool.angleSnappingEnabled) {
 
-                    val computedAngle = findNearestSnapAngle(actualDist.angle()).toFloat()
+                    val computedAngle = AutoSnapper.findNearestSnapAngle(actualDist.angle().toInt(), base = ANGLE_SNAP_STEP).toFloat()
                     val computedLength = actualDist.len()
 
                     AngleSnapTracking.computedVector.set(1f, 1f).nor()
@@ -141,20 +142,4 @@ class RoadTool : EditorTool() {
 
     }
 
-}
-
-/**
- * Returns the multiple of [ANGLE_SNAP_STEP] nearest to the provided angle
- *
- * @param providedAngle Int
- *
- * @return Int
- */
-private fun findNearestSnapAngle(providedAngle: Float): Int {
-    return AngleSnapData.mulAngles.minBy { Math.abs(providedAngle - it) }!!
-} private object AngleSnapData {
-    val mulAngles = mutableSetOf<Int>()
-    init {
-        for (i in 0..360 step ANGLE_SNAP_STEP) mulAngles += i
-    }
 }
