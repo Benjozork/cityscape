@@ -16,6 +16,8 @@ fun main(args: Array<String>) {
         height = 480
         resizable = true
 
+        samples = 8
+
         foregroundFPS = 145
     })
 }
