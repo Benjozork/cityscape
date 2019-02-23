@@ -2,7 +2,18 @@ package me.benjozork.cityscape.game.model
 
 import com.badlogic.gdx.math.Polygon
 
-interface Deleteable {
+interface Bounded {
+
+    /**
+     * The bounding box of this element
+     */
+    val boundingBox: Polygon
+
+}
+
+interface Selectable : Bounded
+
+interface Deletable : Selectable {
 
     /**
      * @return whether this object needs confirmation in order to be deleted
@@ -10,11 +21,3 @@ interface Deleteable {
     fun delete(): Boolean
 
 }
-
-interface Bounded {
-
-    val boundingBox: Polygon
-
-}
-
-interface Selectable : Bounded
