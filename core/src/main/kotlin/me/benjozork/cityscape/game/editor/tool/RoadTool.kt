@@ -58,13 +58,15 @@ class RoadTool : EditorTool() {
         if (currentlyDrawing) {
             RenderingContext.switchToSprite()
             roadGhostSprite.apply {
-                setPosition(currentX1, currentY1 - TEST_ROAD_WIDTH / 2)
+
+                setPosition(currentX1, currentY1)
+                setOrigin(0f, 0f)
                 setRotation(MathUtils.atan2(currentY2 - currentY1, currentX2 - currentX1) * MathUtils.radDeg)
 
                 val cathX = currentX2 - currentX1
                 val cathY = currentY2 - currentY1
                 val hypo = Math.sqrt((cathX.pow(2) + cathY.pow(2)).toDouble()).toFloat()
-                setScale(hypo / width, TEST_ROAD_WIDTH)
+                setScale(hypo / width, TEST_ROAD_WIDTH / height)
             }
             roadGhostSprite.draw(RenderingContext.spriteBatch)
         }
