@@ -18,6 +18,7 @@ import me.benjozork.cityscape.game.`object`.Road
 import me.benjozork.cityscape.game.`object`.TestEntity
 import me.benjozork.cityscape.game.`object`.model.Object
 import me.benjozork.cityscape.game.editor.tool.RoadTool
+import me.benjozork.cityscape.game.editor.tool.RoadsidePlacementTestTool
 import me.benjozork.cityscape.game.editor.tool.SelectorTool
 import me.benjozork.cityscape.game.editor.tool.ToolManager
 import me.benjozork.cityscape.game.input.GameInputController
@@ -50,7 +51,7 @@ class FirstScreen : KtxScreen {
         Gdx.input.inputProcessor = GameInputController
         GameInputController.addProcessor(cameraController.inputProcessor)
 
-        ToolManager.switchTool(SelectorTool::class)
+        ToolManager.switchTool(RoadsidePlacementTestTool::class)
 
         val ctx = CSFFileReader().readFrom(File("C:\\Users\\benjo\\Documents\\reddit\\test.dat"))
         GameWorld.registerObjects(ctx.deserializeNextList())
