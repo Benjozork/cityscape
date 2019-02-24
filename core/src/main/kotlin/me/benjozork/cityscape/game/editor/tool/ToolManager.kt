@@ -1,9 +1,6 @@
 package me.benjozork.cityscape.game.editor.tool
 
-import com.badlogic.gdx.Input
-
 import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
-import me.benjozork.cityscape.game.input.AbstractInputProcessor
 import me.benjozork.cityscape.game.input.GameInputController
 
 import kotlin.reflect.KClass
@@ -11,21 +8,6 @@ import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
 
 object ToolManager {
-
-    init {
-        GameInputController.addProcessor(object : AbstractInputProcessor() {
-
-            override fun keyDown(keycode: Int): Boolean {
-                if (keycode == Input.Keys.R) {
-                    switchTool(RoadTool::class)
-                } else if (keycode == Input.Keys.B) {
-                    switchTool(BoxPlacerTool::class)
-                }
-                return false
-            }
-
-        })
-    }
 
     private val tools = mutableMapOf<KClass<out EditorTool>, EditorTool>()
 
