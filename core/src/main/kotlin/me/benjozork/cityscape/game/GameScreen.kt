@@ -39,7 +39,6 @@ object GameScreen : Screen() {
     private val console = GUIConsole().apply { this.displayKeyID = Input.Keys.ESCAPE }
 
     private lateinit var cameraController: CameraController
-    private lateinit var uiController: EditorUIView
 
     override fun show() {
         super.show()
@@ -47,7 +46,7 @@ object GameScreen : Screen() {
         RenderingContext.intialize()
 
         this.cameraController = CameraController()
-        this.uiController = EditorUIView()
+        this.uiView = EditorUIView()
 
         Gdx.input.inputProcessor = GameInputController
         GameInputController.addProcessor(cameraController.inputProcessor)
@@ -59,8 +58,6 @@ object GameScreen : Screen() {
     }
 
     override fun render(delta: Float) {
-        super.render(delta)
-
         clearScreen(0.8f, 0.8f, 0.8f)
 
         RenderingContext.update()
@@ -76,10 +73,9 @@ object GameScreen : Screen() {
         GameWorld.update()
         GameWorld.draw()
 
-        uiController.update()
-        uiController.draw()
-
         ToolManager.currentTool?.draw()
+
+        super.render(delta)
 
         //
 
