@@ -21,6 +21,10 @@ object GameWorld {
         return this.objectsData.remove(obj)
     }
 
+    fun unregisterObjects(objs: Collection<Object>): Boolean {
+        return this.objectsData.removeAll(objs)
+    }
+
     fun update() = this.objectsData.forEach { it.update() }
 
     fun draw() = this.objectsData.forEach { it.draw() }

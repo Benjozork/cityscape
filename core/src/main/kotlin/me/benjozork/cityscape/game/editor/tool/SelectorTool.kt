@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Polygon
+import me.benjozork.cityscape.game.GameScreen
 
 import me.benjozork.cityscape.game.GameWorld
 import me.benjozork.cityscape.game.`object`.model.Object
@@ -49,9 +50,9 @@ class SelectorTool : EditorTool() {
     class SelectorToolInputProcessor(private val parentTool: SelectorTool) : ToolInputProcessor(parentTool) {
 
         override fun keyDown(keycode: Int): Boolean {
-            // This handles element deletion
+            // This handles element deletion-
             return if (keycode == KEY_DELETE_OBJ) {
-                parentTool.currentlySelected.also { it.forEach { o -> o.delete() } }.clear()
+                GameScreen.ui.deleteWithConfirmDialog(parentTool.currentlySelected)
                 true
             } else false
         }

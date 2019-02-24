@@ -29,6 +29,8 @@ import me.benjozork.cityscape.storage.CSFFileWriter
 import me.benjozork.cityscape.storage.deserializeNextList
 import me.benjozork.cityscape.storage.serialize
 
+import me.benjozork.cityscape.ui.UIView
+
 import java.io.File
 
 object GameScreen : Screen() {
@@ -37,6 +39,11 @@ object GameScreen : Screen() {
     private val batch = SpriteBatch()
 
     private val console = GUIConsole().apply { this.displayKeyID = Input.Keys.ESCAPE }
+
+    /**
+     * Provides an [UIView] casted to [EditorUIView] for convenience
+     */
+    val ui get() = (uiView as EditorUIView)
 
     private lateinit var cameraController: CameraController
 
