@@ -17,9 +17,6 @@ open class Screen : KtxScreen {
                 viewportWidth = width.toFloat()
                 viewportHeight = height.toFloat()
 
-                up.set(0f, 1f, 0f)
-                direction.set(0f, 0f, -1f)
-
                 update()
             }
         }
