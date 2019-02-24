@@ -76,14 +76,17 @@ class RoadTool : EditorTool() {
     class RoadToolInputProcessor(private val parentTool: RoadTool) : ToolInputProcessor(parentTool) {
 
         override fun keyDown(keycode: Int): Boolean {
-            println(keycode)
-            if (keycode == KEY_ANGLE_SNAP) parentTool.angleSnappingEnabled = true
-            return true
+            return if (keycode == KEY_ANGLE_SNAP) {
+                parentTool.angleSnappingEnabled = true
+                true
+            } else false
         }
 
         override fun keyUp(keycode: Int): Boolean {
-            if (keycode == KEY_ANGLE_SNAP) parentTool.angleSnappingEnabled = false
-            return true
+            return if (keycode == KEY_ANGLE_SNAP) {
+                parentTool.angleSnappingEnabled = false
+                true
+            } else false
         }
 
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -97,6 +100,7 @@ class RoadTool : EditorTool() {
                 return true
             } else if (button == BUTTON_CANCEL_DRAW) {
                 parentTool.currentlyDrawing = false  // Cancel the drawing
+                return true
             }
             return false
         }
