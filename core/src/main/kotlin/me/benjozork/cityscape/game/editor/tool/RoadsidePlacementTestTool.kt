@@ -34,11 +34,16 @@ class RoadsidePlacementTestTool : EditorTool() {
             val unproj = Gdx.input.unprojectedPos(RenderingContext.camera!!)
 
             val nearestRoadLine = GameWorld.objects
+                    // Only keep roads, return if there are not any
                     .filter    { it is Road }
                     .also      { if (it.isEmpty()) return false }
+                    // Cast every element as Road, so that we can use x2/y2
                     .map       { it as Road }
+                    // Create a map with the distance from it to the mouse position
                     .associate { it to Intersector.distanceSegmentPoint(it.x, it.y, it.x2, it.y2, unproj.x, unproj.y) }
+                    // Find the nearest road
                     .minBy     { it.value }!!
+                    // If that is too far, return null. If not, select only the key and convert that to a Pair<V2, V2>
                     .takeIf    { it.value < 100f }
                     ?.key
                     ?.run      { vec2(x, y) to vec2(x2, y2)}
