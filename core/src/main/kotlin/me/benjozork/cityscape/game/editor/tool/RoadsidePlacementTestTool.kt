@@ -35,8 +35,9 @@ class RoadsidePlacementTestTool : EditorTool() {
 
             val nearestRoadLine = GameWorld.objects
                     .filter    { it is Road }
+                    .also      { if (it.isEmpty()) return false }
                     .map       { it as Road }
-                    .associate { it to Intersector.distanceLinePoint(it.x, it.y, it.x2, it.y2, unproj.x, unproj.y) }
+                    .associate { it to Intersector.distanceSegmentPoint(it.x, it.y, it.x2, it.y2, unproj.x, unproj.y) }
                     .minBy     { it.value }!!
                     .takeIf    { it.value < 100f }
                     ?.key
