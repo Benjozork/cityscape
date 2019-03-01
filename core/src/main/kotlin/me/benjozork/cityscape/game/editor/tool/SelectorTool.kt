@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Polygon
+import me.benjozork.cityscape.Cityscape
 import me.benjozork.cityscape.game.GameScreen
 
 import me.benjozork.cityscape.game.GameWorld
@@ -52,7 +53,7 @@ class SelectorTool : EditorTool() {
         override fun keyDown(keycode: Int): Boolean {
             // This handles element deletion-
             return if (keycode == KEY_DELETE_OBJ) {
-                GameScreen.ui.deleteWithConfirmDialog(parentTool.currentlySelected)
+                (Cityscape.shownScreen as GameScreen).ui.deleteWithConfirmDialog(parentTool.currentlySelected)
                 true
             } else false
         }

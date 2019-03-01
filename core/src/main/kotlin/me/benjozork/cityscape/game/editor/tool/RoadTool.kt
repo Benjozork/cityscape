@@ -2,18 +2,18 @@ package me.benjozork.cityscape.game.editor.tool
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 
+import ktx.assets.assetDescriptor
 import ktx.math.component1
 import ktx.math.component2
 import ktx.math.vec2
 
+import me.benjozork.cityscape.Cityscape
 import me.benjozork.cityscape.game.GameWorld
-import me.benjozork.cityscape.game.`object`.Road
-import me.benjozork.cityscape.game.`object`.TEST_ROAD_WIDTH
+import me.benjozork.cityscape.game.`object`.road.Road
+import me.benjozork.cityscape.game.`object`.road.RoadType
 import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
 import me.benjozork.cityscape.game.input.AutoSnapper
 
@@ -31,10 +31,6 @@ const val BUTTON_CANCEL_DRAW  = Input.Buttons.RIGHT
 
 const val ANGLE_SNAP_STEP = 45
 
-
-val ROAD_GHOST_TEXTURE = Texture(Gdx.files.internal("road_ghost.png"))
-
-
 /**
  * [EditorTool] that places roads.
  */
@@ -44,21 +40,22 @@ class RoadTool : EditorTool() {
 
     private var angleSnappingEnabled = false
 
+    private lateinit var currentType: RoadType
+
     private var currentX1 = 0f
     private var currentY1 = 0f
     private var currentX2 = 0f
     private var currentY2 = 0f
 
-    private val roadGhostSprite = Sprite(ROAD_GHOST_TEXTURE).apply {
-        setOrigin(0f, TEST_ROAD_WIDTH / 2)
-        setScale(1f, TEST_ROAD_WIDTH)
-    }
-
     @Suppress("UsePropertyAccessSyntax")
     override fun draw() {
+
+        // We don't want to do *anything* if currentType is not initialized
+        if (!this::currentType.isInitialized) return
+
         if (currentlyDrawing) {
             RenderingContext.switchToSprite()
-            roadGhostSprite.apply {
+            currentType.roadSprite.apply {
 
                 setPosition(currentX1, currentY1)
                 setOrigin(0f, 0f)
@@ -67,9 +64,9 @@ class RoadTool : EditorTool() {
                 val cathX = currentX2 - currentX1
                 val cathY = currentY2 - currentY1
                 val hypo = Math.sqrt((cathX.pow(2) + cathY.pow(2)).toDouble()).toFloat()
-                setScale(hypo / width, TEST_ROAD_WIDTH / height)
+                setScale(hypo / width, currentType.roadSprite.width / height)
             }
-            roadGhostSprite.draw(RenderingContext.spriteBatch)
+            currentType.roadSprite.draw(RenderingContext.spriteBatch)
         }
     }
 
@@ -77,7 +74,7 @@ class RoadTool : EditorTool() {
 
         override fun keyDown(keycode: Int): Boolean {
             return if (keycode == KEY_ANGLE_SNAP) {
-                parentTool.angleSnappingEnabled = true
+                parentTool.angleSnappingEnabled = false
                 true
             } else false
         }
@@ -92,6 +89,9 @@ class RoadTool : EditorTool() {
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             if (button == BUTTON_DRAW) {
                 parentTool.currentlyDrawing = true
+
+                parentTool.currentType = Cityscape.assetManager.get(assetDescriptor("road.json"))
+
                 val unprojected = Gdx.input.unprojectedPos(RenderingContext.camera!!)
                 parentTool.currentX1 = unprojected.x
                 parentTool.currentY1 = unprojected.y  // This makes sure that there is no temporary line going to the previous
@@ -139,7 +139,7 @@ class RoadTool : EditorTool() {
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             return if (parentTool.currentlyDrawing) {
                 parentTool.currentlyDrawing = false // here, we actually register the new road since we are done drawing
-                GameWorld.registerObject(Road(parentTool.currentX1, parentTool.currentY1, parentTool.currentX2, parentTool.currentY2))
+                GameWorld.registerObject(Road(parentTool.currentType.copy(), parentTool.currentX1, parentTool.currentY1, parentTool.currentX2, parentTool.currentY2))
                 true
             } else false
         }

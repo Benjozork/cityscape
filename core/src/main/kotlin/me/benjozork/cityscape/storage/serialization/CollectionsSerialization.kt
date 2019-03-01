@@ -1,7 +1,9 @@
-package me.benjozork.cityscape.storage
+package me.benjozork.cityscape.storage.serialization
 
 import me.benjozork.cityscape.storage.model.DeserializationContext
 import me.benjozork.cityscape.storage.model.Serializable
+import okio.Buffer
+import okio.BufferedSource
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KTypeProjection
@@ -139,7 +141,7 @@ internal inline fun <reified K : Any, reified V : Any> Map<K, V>.serialize(): By
  *
  * @return Set<E>
  */
-fun <E> DeserializationContext.deSerializeNextSet(): Set<E> {
+fun <E> DeserializationContext.deSerializeNextSet(buffer: Buffer): Set<E> {
     // Read the collection type byte
     val collectionTypeByte = buffer.readByte()
 
@@ -153,12 +155,12 @@ fun <E> DeserializationContext.deSerializeNextSet(): Set<E> {
             val finalPrimSet = mutableSetOf<E>()
 
             @Suppress("UNCHECKED_CAST")
-            for (i in 1..numElems) finalPrimSet.add(this.deSerializeNextPrimitive(typeClass) as E)
+            for (i in 1..numElems) finalPrimSet.add(this.deSerializeNextPrimitive(typeClass, buffer) as E)
 
             return finalPrimSet
         }
 
-        OBJ_SET_BYTE  -> {
+        OBJ_SET_BYTE -> {
             // Read metadata
 
             val numElems = buffer.readInt()
@@ -166,7 +168,7 @@ fun <E> DeserializationContext.deSerializeNextSet(): Set<E> {
             val finalObjSet = mutableSetOf<E>()
 
             @Suppress("UNCHECKED_CAST")
-            for (i in 1..numElems) finalObjSet.add(this.deSerializeNextObject() as E)
+            for (i in 1..numElems) finalObjSet.add(this.deSerializeObject(buffer) as E)
 
             return finalObjSet
         }
@@ -184,7 +186,7 @@ fun <E> DeserializationContext.deSerializeNextSet(): Set<E> {
  *
  * @return List<E>
  */
-fun <E : Any> DeserializationContext.deserializeNextList(): List<E> {
+fun <E : Any> DeserializationContext.deserializeNextList(buffer: BufferedSource): List<E> {
     // Read the collection type byte
     val collectionTypeByte = buffer.readByte()
 
@@ -198,12 +200,12 @@ fun <E : Any> DeserializationContext.deserializeNextList(): List<E> {
             val finalPrimSet = mutableListOf<E>()
 
             @Suppress("UNCHECKED_CAST")
-            for (i in 1..numElems) finalPrimSet.add(this.deSerializeNextPrimitive(typeClass) as E)
+            for (i in 1..numElems) finalPrimSet.add(this.deSerializeNextPrimitive(typeClass, buffer) as E)
 
             return finalPrimSet
         }
 
-        OBJ_LIST_BYTE  -> {
+        OBJ_LIST_BYTE -> {
             // Read metadata
 
             val typeHash = buffer.readInt()
@@ -214,7 +216,7 @@ fun <E : Any> DeserializationContext.deserializeNextList(): List<E> {
             val finalObjSet = mutableListOf<E>()
 
             @Suppress("UNCHECKED_CAST")
-            for (i in 1..numElems) finalObjSet.add(this.deSerializeNextObject() as E)
+            for (i in 1..numElems) finalObjSet.add(this.deSerializeObject(buffer) as E)
 
             return finalObjSet
         }
@@ -228,17 +230,16 @@ fun <E : Any> DeserializationContext.deserializeNextList(): List<E> {
 /**
  *
  *
- * @receiver DeserializationContext
+ ♠* @receiver DeserializationContext
  *
- * @param keyTypeClass
- * @param valueTypeClass
+ * @param buffer BufferedSource
  *
  * @return Map<K, V>
  */
-fun <K : Any, V : Any> DeserializationContext.deserializeNextMap(): Map<K, V> {
+fun <K : Any, V : Any> DeserializationContext.deSerializeMap(buffer: BufferedSource): Map<K, V> {
     buffer.readByte()
-    val keys   = deserializeNextList<K>()
-    val values = deserializeNextList<V>()
+    val keys   = deserializeNextList<K>(buffer)
+    val values = deserializeNextList<V>(buffer)
     return keys.mapIndexed { i, k -> k to values[i] }.toMap()
 
 }

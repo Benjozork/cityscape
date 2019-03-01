@@ -1,11 +1,13 @@
-package me.benjozork.cityscape.storage
+package me.benjozork.cityscape.storage.serialization
 
+import me.benjozork.cityscape.assets.ReferenceableAsset
 import me.benjozork.cityscape.storage.model.DeserializationContext
 import me.benjozork.cityscape.storage.model.NotSerialized
 import me.benjozork.cityscape.storage.model.Referenceable
 import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable
 import me.benjozork.cityscape.storage.model.SerializeReference
+import okio.BufferedSource
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -58,26 +60,38 @@ fun <OC : Serializable> SProp<OC>.serialize(target: OC): ByteArray {
  *
  * @return Any
  */
-fun <OC : Serializable> SProp<OC>.deserialize(ctx: DeserializationContext): Any {
+fun <OC : Serializable> SProp<OC>.deSerialize(ctx: DeserializationContext, buffer: BufferedSource): Any {
     val propTypeClass = this.returnType.classifier as KClass<*>
     return when {
-        this.isSerializedAsPrimitive() -> ctx.deSerializeNextPrimitive(propTypeClass)
-        this.isReferenceSerialized()   -> ctx.deSerializeNextObject()
-        this.isSerialized()            -> ctx.deSerializeNextReference()
+        this.isSerializedAsPrimitive()    -> ctx.deSerializeNextPrimitive(propTypeClass, buffer)
+        this.isAssetReferenceSerialized() -> ctx.deSerializeAssetReference(buffer)
+        this.isSerialized()               -> ctx.deSerializeObject(buffer)
         else -> error("can't dserialize property: it is neither of primitive type, referenceable or serializable")
     }
 }
 
 /**
- * Checks whether or not an object property should be serialized or not, through the use
- * of the [NotSerialized] annotation.
+ *
+ *
+ * @receiver Any?
+ *
+ * @return Boolean
+ */
+fun <OC : Serializable> SProp<OC>.isSerializedAsPrimitive(): Boolean {
+    val kClass = this.returnType.classifier as KClass<*>
+    return (kClass.isSubclassOf(Number::class) || kClass.isSubclassOf(String::class))
+}
+
+/**
+ * Checks whether or not an object property should be serialized fully o-r by reference,
+ * through the use of the [NotSerialized] annotation.
  *
  * @receiver SProp<OC>
  *
  * @return Boolean
  */
-fun <OC : Serializable> SProp<OC>.isSerialized(): Boolean {
-    return this.annotations.none { it is NotSerialized }
+fun <OC : Serializable> SProp<OC>.isAssetReferenceSerialized(): Boolean {
+    return (this.returnType.classifier as KClass<*>).isSubclassOf(ReferenceableAsset::class)
 }
 
 /**
@@ -93,13 +107,13 @@ fun <OC : Serializable> SProp<OC>.isReferenceSerialized(): Boolean {
 }
 
 /**
+ * Checks whether or not an object property should be serialized or not, through the use
+ * of the [NotSerialized] annotation.
  *
- *
- * @receiver Any?
+ * @receiver SProp<OC>
  *
  * @return Boolean
  */
-fun <OC : Serializable> SProp<OC>.isSerializedAsPrimitive(): Boolean {
-    val kClass = this.returnType.classifier as KClass<*>
-    return (kClass.isSubclassOf(Number::class) || kClass.isSubclassOf(String::class))
+fun <OC : Serializable> SProp<OC>.isSerialized(): Boolean {
+    return this.annotations.none { it is NotSerialized }
 }

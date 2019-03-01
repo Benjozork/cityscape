@@ -3,9 +3,9 @@ package me.benjozork.cityscape.game.`object`.model
 import me.benjozork.cityscape.game.GameWorld
 import me.benjozork.cityscape.game.model.Deletable
 
-import me.benjozork.cityscape.storage.model.Referenceable
+import me.benjozork.cityscape.storage.model.Serializable
 
-abstract class Object : Referenceable(), Deletable {
+abstract class Object : Deletable, Serializable() {
 
     abstract var y: Float
     abstract var x: Float

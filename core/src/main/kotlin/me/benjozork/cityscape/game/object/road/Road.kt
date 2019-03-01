@@ -1,44 +1,39 @@
-package me.benjozork.cityscape.game.`object`
+package me.benjozork.cityscape.game.`object`.road
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Polygon
 
 import me.benjozork.cityscape.game.`object`.model.Object
-
 import me.benjozork.cityscape.render.RenderingContext
 
 import kotlin.math.pow
 
-const val TEST_ROAD_WIDTH = 50f
-
-val ROAD_TEXTURE = Texture(Gdx.files.internal("road.png"))
-
 class Road (
+                   type: RoadType,
         override var  x: Float,
         override var  y: Float,
                  var x2: Float,
                  var y2: Float
 ) : Object() {
 
+    var type: RoadType = type
+
     private val length = Math.sqrt(((this.x2 - this.x).pow(2) + (this.y2 - this.y).pow(2)).toDouble()).toFloat()
 
     private val angle  = MathUtils.atan2(this.y2 - this.y, this.x2 - this.x) * MathUtils.radDeg
 
-    private var sprite = Sprite(ROAD_TEXTURE).apply {
+    private var sprite = type.roadSprite.apply {
         setPosition(this@Road.x, this@Road.y)
         setOrigin(0f, 0f)
         setRotation(angle)
-        setScale(length / width, TEST_ROAD_WIDTH / height)
+        setScale(length / width, type.roadSprite.width / height)
     }
 
     override val boundingBox = Polygon ( floatArrayOf (
             0f,     0f,
             length, 0f,
-            length, TEST_ROAD_WIDTH,
-            0f,     TEST_ROAD_WIDTH
+            length, type.roadSprite.width,
+            0f,     type.roadSprite.width
     )).apply {
         setPosition(this@Road.x, this@Road.y)
         setOrigin(0f, 0f)
@@ -57,10 +52,6 @@ class Road (
     override fun delete(): Boolean {
         super.delete()
         return true
-    }
-
-    companion object {
-        val testRoad = Road(0f, 0f, 0f, 0f)
     }
 
 }

@@ -9,7 +9,7 @@ import me.benjozork.cityscape.Cityscape
 
 /** Launches the desktop (LWJGL) application. */
 fun main(args: Array<String>) {
-    LwjglApplication(Cityscape(), LwjglApplicationConfiguration().apply {
+    LwjglApplication(Cityscape, LwjglApplicationConfiguration().apply {
 
         title = "cityscape"
         width = 640

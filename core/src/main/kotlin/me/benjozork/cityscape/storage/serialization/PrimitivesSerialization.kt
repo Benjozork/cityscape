@@ -1,6 +1,8 @@
-package me.benjozork.cityscape.storage
+package me.benjozork.cityscape.storage.serialization
 
 import me.benjozork.cityscape.storage.model.DeserializationContext
+import okio.Buffer
+import okio.BufferedSource
 
 import java.nio.ByteBuffer
 import java.util.*
@@ -70,7 +72,7 @@ internal fun Number.getBytes(): ByteArray {
  *
  * @return ByteArray
  */
-internal fun DeserializationContext.deSerializeNextPrimitive(typeClass: KClass<*>): Any {
+internal fun DeserializationContext.deSerializeNextPrimitive(typeClass: KClass<*>, buffer: BufferedSource): Any {
     if (typeClass == String::class) {
         var stringBytes = byteArrayOf(buffer.readByte())
         var nextByte = 0xFF.toByte()

@@ -1,28 +1,53 @@
 package me.benjozork.cityscape
 
-import com.kotcrab.vis.ui.VisUI
+import com.badlogic.gdx.Application
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver
 
-import com.strongjoshua.console.CommandExecutor
+import com.kotcrab.vis.ui.VisUI
 
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.async.enableKtxCoroutines
 
-import me.benjozork.cityscape.game.GameScreen
+import me.benjozork.cityscape.assets.ReferenceableTexture
+import me.benjozork.cityscape.assets.ReferenceableTextureLoader
 
+import me.benjozork.cityscape.assets.RoadTypeLoader
+import me.benjozork.cityscape.game.`object`.road.RoadType
+import me.benjozork.cityscape.game.screen.LoadingScreen
+import me.benjozork.cityscape.render.RenderingContext
+import me.benjozork.cityscape.storage.MapPackage
 
-class Cityscape : KtxGame<KtxScreen>() {
+import java.io.File
+
+object Cityscape : KtxGame<KtxScreen>() {
+
+    val assetManager = AssetManager()
 
     override fun create() {
 
+        println(Thread.currentThread().id)
+
+        Gdx.app.logLevel = Application.LOG_DEBUG
+
+        assetManager.setLoader(ReferenceableTexture::class.java, ReferenceableTextureLoader(InternalFileHandleResolver()))
+        assetManager.setLoader(RoadType::class.java, RoadTypeLoader(InternalFileHandleResolver()))
+
+        RenderingContext.intialize()
         VisUI.load()
+
+        val mapPackage = MapPackage(File("C:\\users\\benjo\\Documents\\reddit\\world"))
+        mapPackage.initDserializer()
+
+        addScreen(LoadingScreen(mapPackage))
+        setScreen<LoadingScreen>()
 
         enableKtxCoroutines(2)
 
-        addScreen(GameScreen)
-        setScreen<GameScreen>()
+        /*addScreen(GameScreen)
+        setScreen<GameScreen>()*/
     }
 
 }
-
-class CityscapeCommandExecutor : CommandExecutor()

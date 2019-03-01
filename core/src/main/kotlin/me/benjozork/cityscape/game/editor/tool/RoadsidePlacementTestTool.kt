@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2
 import ktx.math.vec2
 
 import me.benjozork.cityscape.game.GameWorld
-import me.benjozork.cityscape.game.`object`.Road
+import me.benjozork.cityscape.game.`object`.road.Road
 import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
 
 import me.benjozork.cityscape.render.RenderingContext
@@ -23,7 +23,7 @@ class RoadsidePlacementTestTool : EditorTool() {
     override fun draw() {
         if (drawEnabled) {
             RenderingContext.switchToShape()
-            RenderingContext.shapeRenderer?.circle(circlePos.x, circlePos.y, 100f)
+            RenderingContext.shapeRenderer?.circle(circlePos.x, circlePos.y, 100f, 48)
         }
     }
 

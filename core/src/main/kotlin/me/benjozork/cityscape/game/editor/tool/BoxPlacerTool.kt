@@ -7,7 +7,6 @@ import ktx.math.component1
 import ktx.math.component2
 
 import me.benjozork.cityscape.game.`object`.TestEntity
-import me.benjozork.cityscape.game.`object`.Road
 import me.benjozork.cityscape.game.GameWorld
 import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
 
@@ -17,7 +16,7 @@ import me.benjozork.cityscape.utils.unprojectedPos
 
 class BoxPlacerTool : EditorTool() {
 
-    fun place(x: Float, y: Float, r: Road) {
+    fun place(x: Float, y: Float) {
         GameWorld.registerObject(TestEntity(x, y))
     }
 
@@ -26,7 +25,7 @@ class BoxPlacerTool : EditorTool() {
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             return if (button == Input.Buttons.LEFT) {
                 val (x, y) = Gdx.input.unprojectedPos(RenderingContext.camera!!)
-                parentTool.place(x, y, Road.testRoad)
+                parentTool.place(x, y)
                 true
             } else false
         }

@@ -1,4 +1,4 @@
-package me.benjozork.cityscape.storage
+package me.benjozork.cityscape.storage.serialization
 
 import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable

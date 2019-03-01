@@ -1,11 +1,11 @@
-package me.benjozork.cityscape.storage
+package me.benjozork.cityscape.storage.serialization
 
 import me.benjozork.cityscape.storage.model.DeserializationContext
-import me.benjozork.cityscape.storage.model.Referenceable
 import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable
 
 import okio.Buffer
+import okio.BufferedSource
 
 import kotlin.reflect.KClass
 
@@ -35,34 +35,6 @@ internal inline fun <reified OC : Serializable> OC.serialize(): ByteArray {
 }
 
 /**
- * Serializes the receiver [Serializable] into a [ByteArray].
- * As opposed to [serialize], this does not use a receiver but rather an explicit
- * target and class.
- *
- * @param obj   the explicit receiver
- * @param klass the explicit class of the receiver
- *
- * @return ByteArray
- */
-@Suppress("UNCHECKED_CAST")
-internal fun serializeExplicit(obj: Serializable, klass: KClass<Serializable>): ByteArray {
-    val props = klass.serializedProps().map { (h, p) -> h to p.serialize(obj) }.toMap()
-
-    val finalBytes = mutableListOf<Byte>()
-
-    finalBytes.add(OBJ_BYTE)
-    finalBytes.addAll(klass.TYPE_HASH.toTypedArray())
-    finalBytes.addAll(props.size.getBytes().toTypedArray())
-
-    props.forEach { (k, v) ->
-        finalBytes.addAll(k.getBytes().toTypedArray())
-        finalBytes.addAll(v.toTypedArray())
-    }
-
-    return finalBytes.toByteArray()
-}
-
-/**
  * Reads the next [Serializable] object found in the receiver [Buffer]
  *
  * @receiver Buffer
@@ -70,7 +42,7 @@ internal fun serializeExplicit(obj: Serializable, klass: KClass<Serializable>): 
  * @return Serializable
  */
 @Suppress("UNCHECKED_CAST")
-fun DeserializationContext.deSerializeNextObject(): Serializable {
+fun DeserializationContext.deSerializeObject(buffer: BufferedSource): Serializable {
 
     // Prepare type info
 
@@ -94,24 +66,9 @@ fun DeserializationContext.deSerializeNextObject(): Serializable {
     for (i in 0 until numPropsInPayload) {
         val propHash = buffer.readInt()
         val currentProp = objClassProps[propHash] ?: error("unknown property with hash \"$propHash\"")
-        deserializedProps[currentProp] = propList[i].deserialize(this)
+        deserializedProps[currentProp] = propList[i].deSerialize(this, buffer)
     }
 
     // Instantiate object and populate props
     return fabricateInstance(objClass, deserializedProps)
-}
-
-/**
- *
- * @receiver ByteArray
- *
- * @return Referenceable
- */
-fun DeserializationContext.deSerializeNextReference(): Referenceable {
-    val reference = buffer.readInt()
-    val refClass = classMap[reference] ?: error("unknown class hash \"$reference\": nothing was found in the reference map")
-
-    // @TODO
-
-    return Referenceable()
 }
