@@ -20,7 +20,7 @@ class RoadTypeLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader<Roa
     private var manifest: RoadType.Manifest? = null
 
     override fun loadSync(manager: AssetManager?, fileName: String?, file: FileHandle?, parameter: RoadTypeParameters?): RoadType {
-        return RoadType(this.manifest!!)
+        return RoadType(this.manifest!!, AssetLocator(fileName!!))
     }
 
     override fun loadAsync(manager: AssetManager?, fileName: String?, file: FileHandle?, parameter: RoadTypeParameters?) {

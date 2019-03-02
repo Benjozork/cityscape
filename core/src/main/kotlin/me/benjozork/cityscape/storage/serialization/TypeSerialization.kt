@@ -57,20 +57,25 @@ val KType.COLLECTION_TYPE_BYTE: Byte
     get() {
         val typeClass = this.classifier as KClass<*>
         return when {
-            (this.arguments[0].type!!.classifier as KClass<*>).isSubclassOf(Serializable::class) ->
+            (this.arguments[0].type!!.classifier as KClass<*>).isSubclassOf(Serializable::class)
+                    || (this.arguments[0].type!!.classifier as KClass<*>) == KClass::class -> {
                 when (typeClass) {
                     List::class -> OBJ_LIST_BYTE
                     Set::class  -> OBJ_SET_BYTE
                     Map::class  -> MAP_BYTE
                     else -> error("unsupported collection type \"${this::class.simpleName}\"")
                 }
-            else ->
+            }
+
+            else -> {
                 when (typeClass) {
                     List::class      -> PRIM_LIST_BYTE
                     Set::class       -> PRIM_SET_BYTE
                     Map::class       -> MAP_BYTE
                     else -> error("unsupported collection type \"${this::class.simpleName}\"")
                 }
+            }
+
         }
     }
 

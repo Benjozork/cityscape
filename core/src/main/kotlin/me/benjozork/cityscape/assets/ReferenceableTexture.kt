@@ -18,7 +18,7 @@ import ktx.collections.gdxArrayOf
  * @property texture the contained [Texture].
  * @constructor
  */
-class ReferenceableTexture(val texture: Texture) : ReferenceableAsset()
+class ReferenceableTexture(val texture: Texture, locator: AssetLocator) : ReferenceableAsset(locator)
 
 /**
  *
@@ -27,7 +27,7 @@ class ReferenceableTexture(val texture: Texture) : ReferenceableAsset()
 class ReferenceableTextureLoader(resolver: FileHandleResolver) : SynchronousAssetLoader<ReferenceableTexture, ReferenceableTextureLoader.Unused>(resolver) {
 
     override fun load(assetManager: AssetManager?, fileName: String?, file: FileHandle?, parameter: Unused?): ReferenceableTexture {
-        return ReferenceableTexture(Texture(file))
+        return ReferenceableTexture(Texture(file), AssetLocator(fileName!!))
     }
 
     override fun getDependencies(fileName: String?, file: FileHandle?, parameter: Unused?): Array<AssetDescriptor<Any>> {

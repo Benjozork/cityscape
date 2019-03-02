@@ -39,7 +39,6 @@ object Cityscape : KtxGame<KtxScreen>() {
         VisUI.load()
 
         val mapPackage = MapPackage(File("C:\\users\\benjo\\Documents\\reddit\\world"))
-        mapPackage.initDserializer()
 
         addScreen(LoadingScreen(mapPackage))
         setScreen<LoadingScreen>()

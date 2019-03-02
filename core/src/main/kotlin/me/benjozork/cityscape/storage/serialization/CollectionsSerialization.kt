@@ -2,6 +2,7 @@ package me.benjozork.cityscape.storage.serialization
 
 import me.benjozork.cityscape.storage.model.DeserializationContext
 import me.benjozork.cityscape.storage.model.Serializable
+import me.benjozork.cityscape.storage.model.SerializationContext
 import okio.Buffer
 import okio.BufferedSource
 
@@ -18,11 +19,13 @@ import kotlin.reflect.full.isSubclassOf
  * @return ByteArray
  */
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified E: Any> Set<E>.serialize(): ByteArray {
+internal inline fun <reified E: Any> Set<E>.serialize(ctx: SerializationContext): ByteArray {
     val finalBytes = mutableListOf<Byte>()
 
+    val ignoredElemClassTypeParams = E::class.typeParameters.map { KTypeProjection.invariant(it.createType()) }
+
     // Create a KType object containing the Set class and the current type noted by E::class
-    val setKType = Set::class.createType(listOf(KTypeProjection.invariant(E::class.createType())))
+    val setKType = Set::class.createType(listOf(KTypeProjection.invariant(E::class.createType(ignoredElemClassTypeParams))))
 
     // Add the collection type byte
     finalBytes.add(setKType.COLLECTION_TYPE_BYTE)
@@ -32,7 +35,6 @@ internal inline fun <reified E: Any> Set<E>.serialize(): ByteArray {
             when {
                 E::class.isSubclassOf(Serializable::class) -> {
                     val typeHash = (setKType.arguments[0].type?.classifier as KClass<Serializable>).TYPE_HASH
-
                     typeHash.toList()
                 }
 
@@ -45,7 +47,7 @@ internal inline fun <reified E: Any> Set<E>.serialize(): ByteArray {
     val payload = listOf(*this.map {
         when {
             E::class.isSubclassOf(Serializable::class) -> {
-                (it as Serializable).serialize()
+                (it as Serializable).serialize(ctx)
             }
 
             else ->
@@ -70,11 +72,13 @@ internal inline fun <reified E: Any> Set<E>.serialize(): ByteArray {
  * @return ByteArray
  */
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified E: Any> List<E>.serialize(): ByteArray {
+internal inline fun <reified E: Any> List<E>.serialize(ctx: SerializationContext): ByteArray {
     val finalBytes = mutableListOf<Byte>()
 
+    val ignoredElemClassTypeParams = E::class.typeParameters.map { KTypeProjection.invariant(it.createType()) }
+
     // Create a KType object containing the List class and the current type noted by E::class
-    val listKType = List::class.createType(listOf(KTypeProjection.invariant(E::class.createType())))
+    val listKType = List::class.createType(listOf(KTypeProjection.invariant(E::class.createType(ignoredElemClassTypeParams))))
 
     // Add the collection type byte
     finalBytes.add(listKType.COLLECTION_TYPE_BYTE)
@@ -94,7 +98,7 @@ internal inline fun <reified E: Any> List<E>.serialize(): ByteArray {
     val payload = listOf(*this.map {
         when {
             E::class.isSubclassOf(Serializable::class) ->
-                (it as Serializable).serialize()
+                (it as Serializable).serialize(ctx)
 
             else ->
                 it.serializeAsPrimitive()
@@ -117,10 +121,13 @@ internal inline fun <reified E: Any> List<E>.serialize(): ByteArray {
  *
  * @return ByteArray
  */
-internal inline fun <reified K : Any, reified V : Any> Map<K, V>.serialize(): ByteArray {
+internal inline fun <reified K : Any, reified V : Any> Map<K, V>.serialize(ctx: SerializationContext): ByteArray {
     val finalBytes = mutableListOf<Byte>()
 
-    val mapKType = Map::class.createType(listOf(KTypeProjection.invariant(K::class.createType()), KTypeProjection.invariant(V::class.createType())))
+    val ignoredKeyClassTypeParams =   K::class.typeParameters.map { KTypeProjection.invariant(it.createType()) }
+    val ignoredValueClassTypeParams = V::class.typeParameters.map { KTypeProjection.invariant(it.createType()) }
+
+    val mapKType = Map::class.createType(listOf(KTypeProjection.invariant(K::class.createType(ignoredKeyClassTypeParams)), KTypeProjection.invariant(V::class.createType(ignoredValueClassTypeParams))))
 
     // Add the collection type byte
     finalBytes.add(mapKType.COLLECTION_TYPE_BYTE)
@@ -129,7 +136,7 @@ internal inline fun <reified K : Any, reified V : Any> Map<K, V>.serialize(): By
     val keySet   = this.keys.toList()
     val valueSet = this.values.toList()
 
-    finalBytes.addAll((keySet.serialize() + valueSet.serialize()).toTypedArray())
+    finalBytes.addAll((keySet.serialize(ctx) + valueSet.serialize(ctx)).toTypedArray())
 
     return finalBytes.toByteArray()
 }
@@ -168,7 +175,7 @@ fun <E> DeserializationContext.deSerializeNextSet(buffer: Buffer): Set<E> {
             val finalObjSet = mutableSetOf<E>()
 
             @Suppress("UNCHECKED_CAST")
-            for (i in 1..numElems) finalObjSet.add(this.deSerializeObject(buffer) as E)
+            for (i in 1..numElems) finalObjSet.add(this.deSerializeObject(buffer, 0) as E)
 
             return finalObjSet
         }
@@ -216,7 +223,7 @@ fun <E : Any> DeserializationContext.deserializeNextList(buffer: BufferedSource)
             val finalObjSet = mutableListOf<E>()
 
             @Suppress("UNCHECKED_CAST")
-            for (i in 1..numElems) finalObjSet.add(this.deSerializeObject(buffer) as E)
+            for (i in 1..numElems) finalObjSet.add(this.deSerializeObject(buffer, 0) as E)
 
             return finalObjSet
         }

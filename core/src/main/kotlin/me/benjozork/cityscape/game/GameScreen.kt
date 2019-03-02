@@ -19,8 +19,6 @@ import me.benjozork.cityscape.storage.MapPackage
 
 import me.benjozork.cityscape.ui.UIView
 
-import java.io.File
-
 class GameScreen(val mapPackage: MapPackage) : Screen() {
 
     private val image = Texture("ktx-logo.png")
@@ -42,7 +40,7 @@ class GameScreen(val mapPackage: MapPackage) : Screen() {
         Gdx.input.inputProcessor = GameInputController
         GameInputController.addProcessor(cameraController.inputProcessor)
 
-        GameWorld.registerObjects(mapPackage.readObjects())
+        GameWorld.registerObjects(mapPackage.deserializer.readObjects())
 
         ToolManager.switchTool(RoadTool::class)
 
@@ -74,11 +72,9 @@ class GameScreen(val mapPackage: MapPackage) : Screen() {
     override fun dispose() {
         super.dispose()
 
-        /*val file = File("C:\\Users\\benjo\\Documents\\reddit\\test.dat")
-
-        val csfFileWriter = CSFFileWriter()
-        csfFileWriter.addClassToMap(Object::class, Road::class, TestEntity::class)
-        csfFileWriter.writeTo(dest = file, data = GameWorld.objects.serialize())*/
+        mapPackage.serializer.init()
+        mapPackage.serializer.addObjects(*GameWorld.objects.toTypedArray())
+        mapPackage.serializer.close()
 
         image.dispose()
         batch.dispose()

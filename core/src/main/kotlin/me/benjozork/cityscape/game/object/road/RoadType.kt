@@ -5,10 +5,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import kotlinx.serialization.Serializable
 
 import me.benjozork.cityscape.Cityscape
+import me.benjozork.cityscape.assets.AssetLocator
 import me.benjozork.cityscape.assets.ReferenceableAsset
 import me.benjozork.cityscape.assets.ReferenceableTexture
 
-data class RoadType(val manifest: Manifest) : ReferenceableAsset() {
+class RoadType(manifest: Manifest, locator: AssetLocator) : ReferenceableAsset(locator) {
 
     val roadTexture = Cityscape.assetManager.get<ReferenceableTexture>(manifest.roadTexturePath)
 

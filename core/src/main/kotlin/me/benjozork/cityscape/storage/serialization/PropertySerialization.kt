@@ -3,9 +3,9 @@ package me.benjozork.cityscape.storage.serialization
 import me.benjozork.cityscape.assets.ReferenceableAsset
 import me.benjozork.cityscape.storage.model.DeserializationContext
 import me.benjozork.cityscape.storage.model.NotSerialized
-import me.benjozork.cityscape.storage.model.Referenceable
 import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable
+import me.benjozork.cityscape.storage.model.SerializationContext
 import me.benjozork.cityscape.storage.model.SerializeReference
 import okio.BufferedSource
 
@@ -36,18 +36,12 @@ fun <OC : Serializable> KClass<out OC>.serializedProps(): Map<Int, SProp<OC>> { 
  *
  * @return ByteArray
  */
-fun <OC : Serializable> SProp<OC>.serialize(target: OC): ByteArray {
+fun <OC : Serializable> SProp<OC>.serialize(ctx: SerializationContext, target: OC): ByteArray {
     val targetPropValue = this.get(target)
     return when {
-        this.isReferenceSerialized() && this::class.isSubclassOf(Referenceable::class) -> {
-            (targetPropValue as Referenceable).reference.getBytes()
-        }
-        this.isSerializedAsPrimitive() -> {
-            targetPropValue.serializeAsPrimitive()
-        }
-        else -> {
-            (targetPropValue as Serializable).serialize()
-        }
+        this.isSerializedAsPrimitive()    ->  targetPropValue.serializeAsPrimitive()
+        this.isAssetReferenceSerialized() ->  targetPropValue.serializeAsAssetReference(ctx).also { println(it.toList()) }
+        else -> (targetPropValue as Serializable).serialize(ctx)
     }
 }
 
@@ -65,7 +59,7 @@ fun <OC : Serializable> SProp<OC>.deSerialize(ctx: DeserializationContext, buffe
     return when {
         this.isSerializedAsPrimitive()    -> ctx.deSerializeNextPrimitive(propTypeClass, buffer)
         this.isAssetReferenceSerialized() -> ctx.deSerializeAssetReference(buffer)
-        this.isSerialized()               -> ctx.deSerializeObject(buffer)
+        this.isSerialized()               -> ctx.deSerializeObject(buffer, 0)
         else -> error("can't dserialize property: it is neither of primitive type, referenceable or serializable")
     }
 }

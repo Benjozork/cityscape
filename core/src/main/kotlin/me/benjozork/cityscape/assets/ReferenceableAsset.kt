@@ -10,4 +10,4 @@ import me.benjozork.cityscape.storage.model.Referenceable
  *
  * @author Benjozork
  */
-open class ReferenceableAsset : Referenceable()
+open class ReferenceableAsset(val locator: AssetLocator) : Referenceable()

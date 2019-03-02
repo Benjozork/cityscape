@@ -3,6 +3,7 @@ package me.benjozork.cityscape.assets
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
+import me.benjozork.cityscape.storage.model.Serializable
 
 private const val NAMESPACE_DELIM = ":"
 private const val TYPE_DELIM = "$"
@@ -18,7 +19,7 @@ private const val TYPE_DELIM = "$"
  *
  * @author Benjozork
  */
-data class AssetLocator(private val stringForm: String) {
+data class AssetLocator(private val stringForm: String) : Serializable() {
 
     val namespace = stringForm.substringBefore(NAMESPACE_DELIM)
 

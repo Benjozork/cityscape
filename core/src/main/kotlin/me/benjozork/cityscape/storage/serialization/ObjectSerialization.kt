@@ -3,9 +3,11 @@ package me.benjozork.cityscape.storage.serialization
 import me.benjozork.cityscape.storage.model.DeserializationContext
 import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable
+import me.benjozork.cityscape.storage.model.SerializationContext
 
 import okio.Buffer
 import okio.BufferedSource
+import java.util.zip.Adler32
 
 import kotlin.reflect.KClass
 
@@ -17,20 +19,26 @@ import kotlin.reflect.KClass
  * @return ByteArray
  */
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified OC : Serializable> OC.serialize(): ByteArray {
+internal inline fun <reified OC : Serializable> OC.serialize(ctx: SerializationContext): ByteArray {
     val props = this::class.serializedProps()
 
     val finalBytes = mutableListOf<Byte>()
 
     finalBytes.add(OBJ_BYTE)
-    finalBytes.addAll(this::class.TYPE_HASH.toTypedArray())
+
+    val classHash = this::class.TYPE_HASH
+    finalBytes.addAll(classHash.toTypedArray())
+
+    if (!ctx.classMap.mapKeys { it.key.getBytes() }.containsKey(classHash)) {
+        ctx.classMap[this::class.simpleName!!.getAdler32Int()] = this::class.qualifiedName!!
+    }
+
     finalBytes.addAll(props.size.getBytes().toTypedArray())
 
     props.forEach { k, v ->
         finalBytes.addAll(k.getBytes().toTypedArray())
-        finalBytes.addAll(v.serialize(this).toTypedArray())
+        finalBytes.addAll(v.serialize(ctx, this).toTypedArray())
     }
-
     return finalBytes.toByteArray()
 }
 
@@ -42,7 +50,7 @@ internal inline fun <reified OC : Serializable> OC.serialize(): ByteArray {
  * @return Serializable
  */
 @Suppress("UNCHECKED_CAST")
-fun DeserializationContext.deSerializeObject(buffer: BufferedSource): Serializable {
+fun DeserializationContext.deSerializeObject(buffer: BufferedSource, targetReference: Int): Serializable {
 
     // Prepare type info
 
@@ -70,5 +78,10 @@ fun DeserializationContext.deSerializeObject(buffer: BufferedSource): Serializab
     }
 
     // Instantiate object and populate props
-    return fabricateInstance(objClass, deserializedProps)
+    val inst = fabricateInstance(objClass, deserializedProps)
+
+    // Set reference
+    inst.reference = targetReference
+
+    return inst
 }

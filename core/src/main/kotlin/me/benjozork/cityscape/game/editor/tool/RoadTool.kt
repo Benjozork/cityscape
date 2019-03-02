@@ -139,7 +139,7 @@ class RoadTool : EditorTool() {
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             return if (parentTool.currentlyDrawing) {
                 parentTool.currentlyDrawing = false // here, we actually register the new road since we are done drawing
-                GameWorld.registerObject(Road(parentTool.currentType.copy(), parentTool.currentX1, parentTool.currentY1, parentTool.currentX2, parentTool.currentY2))
+                GameWorld.registerObject(Road(parentTool.currentType, parentTool.currentX1, parentTool.currentY1, parentTool.currentX2, parentTool.currentY2))
                 true
             } else false
         }

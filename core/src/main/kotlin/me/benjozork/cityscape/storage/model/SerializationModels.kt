@@ -1,5 +1,7 @@
 package me.benjozork.cityscape.storage.model
 
+import me.benjozork.cityscape.assets.AssetLocator
+
 import kotlin.random.Random
 import kotlin.reflect.KMutableProperty1
 
@@ -33,16 +35,11 @@ annotation class SerializeReference
 annotation class CallOnSerialize
 
 /**
- * A subclass of [Serializable] can be serialized into HDBS format.
- */
-open class Serializable
-
-/**
  * A object of [Referenceable] type is serialized only using it's [reference], not it's full contents.
  *
  * @property reference the reference used to refer to the object
  */
-open class Referenceable : Serializable {
+open class Referenceable {
 
     @NotSerialized
     var reference: Int
@@ -59,4 +56,20 @@ open class Referenceable : Serializable {
 
     }
 
+}
+
+/**
+ * A subclass of [Serializable] can be serialized into HDBS format.
+ */
+open class Serializable : Referenceable()
+
+class SerializationContext {
+
+    var initialized = false
+
+    var classMap     = mutableMapOf<Int, String>()
+        internal set
+
+    var assetMap = mutableMapOf<Int, AssetLocator>()
+        internal set
 }

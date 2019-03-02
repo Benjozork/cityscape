@@ -42,7 +42,8 @@ class LoadingScreen(val mapPackage: MapPackage) : KtxScreen {
     }
 
     override fun show() {
-        mapPackage.readAssetsToLoad().forEach { Cityscape.assetManager.load(it) }
+        mapPackage.deserializer.init()
+        mapPackage.deserializer.readAssetsToLoad().forEach { Cityscape.assetManager.load(it) }
     }
 
     override fun render(delta: Float) {
