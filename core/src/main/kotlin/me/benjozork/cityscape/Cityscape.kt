@@ -28,8 +28,6 @@ object Cityscape : KtxGame<KtxScreen>() {
 
     override fun create() {
 
-        println(Thread.currentThread().id)
-
         Gdx.app.logLevel = Application.LOG_DEBUG
 
         assetManager.setLoader(ReferenceableTexture::class.java, ReferenceableTextureLoader(InternalFileHandleResolver()))
@@ -44,9 +42,6 @@ object Cityscape : KtxGame<KtxScreen>() {
         setScreen<LoadingScreen>()
 
         enableKtxCoroutines(2)
-
-        /*addScreen(GameScreen)
-        setScreen<GameScreen>()*/
     }
 
 }

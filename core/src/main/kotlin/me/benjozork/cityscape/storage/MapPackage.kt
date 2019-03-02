@@ -6,8 +6,8 @@ import ktx.collections.GdxArray
 import ktx.collections.gdxArrayOf
 import ktx.collections.toGdxArray
 import ktx.log.Logger
-import me.benjozork.cityscape.assets.AssetLocator
 
+import me.benjozork.cityscape.assets.AssetLocator
 import me.benjozork.cityscape.assets.ReferenceableAsset
 import me.benjozork.cityscape.exception
 import me.benjozork.cityscape.game.`object`.model.Object
@@ -254,6 +254,7 @@ class MapPackage(root: File) {
          * @param obj the object to delete
          */
         fun deleteObject(obj: Object) {
+
             // If sctx is not initialized
             if (!sctx.initialized) {
                 log.error { "map package can't be updated: SeserializationContext is not initialized" }
@@ -262,17 +263,16 @@ class MapPackage(root: File) {
 
             val targetObjFile = File("${objectsRoot.path}/${obj.reference}.$OBJECT_FILE_EXT")
 
-            // If object is already stored
+            // If object is already non-existent
             if (!targetObjFile.exists()) {
                 log.error { "map package can't be updated: object can't be deleted, it doesn't already exist" }
                 return
             }
 
             try {
-                targetObjFile.delete()
+                targetObjFile.deleteOnExit()
             } catch (e: Exception) {
                 log.exception("couldn't delete object ${obj.reference}: error occured during deletion", e)
-                return
             }
 
         }
@@ -290,13 +290,39 @@ class MapPackage(root: File) {
          * @param obj the object to add
          */
         fun updateObject(obj: Object) {
-            TODO()
+            // TODO for now we just re-write
 
+            // If sctx is not initialized
             if (!sctx.initialized) {
                 log.error { "map package can't be updated: SeserializationContext is not initialized" }
                 return
             }
 
+            val targetObjFile = File("${objectsRoot.path}/${obj.reference}.$OBJECT_FILE_EXT")
+
+            // If object is non-existent
+            if (!targetObjFile.exists()) {
+                log.error { "map package can't be updated: object can't be updated, it doesn't exist" }
+                return
+            }
+
+            targetObjFile.writeBytes(obj.serialize(sctx))
+
+        }
+
+        /**
+         * Updates existing objects in the package.
+         * @param objs the objects to add
+         */
+        fun updateObjects(vararg objs: Object) {
+            objs.forEach { updateObject(it) }
+        }
+
+        /**
+         * @return whether the object is already stored or not
+         */
+        fun isStored(obj: Object): Boolean {
+            return objectsRoot.list().contains("${obj.reference}.$OBJECT_FILE_EXT")
         }
 
     }

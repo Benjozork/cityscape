@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 import ktx.app.clearScreen
+import ktx.collections.toGdxArray
 import ktx.graphics.use
 
 import me.benjozork.cityscape.game.editor.tool.RoadTool
@@ -72,9 +73,17 @@ class GameScreen(val mapPackage: MapPackage) : Screen() {
     override fun dispose() {
         super.dispose()
 
-        mapPackage.serializer.init()
-        mapPackage.serializer.addObjects(*GameWorld.objects.toTypedArray())
-        mapPackage.serializer.close()
+        with(mapPackage) {
+            serializer.init()
+
+            val toCreate = GameWorld.objects.filter { !this@with.serializer.isStored(it) }.toTypedArray()
+            val toUpdate = GameWorld.objects.subtract(toCreate.toList()).toTypedArray()
+
+            serializer.addObjects(*toCreate)
+            serializer.updateObjects(*toUpdate)
+
+            serializer.close()
+        }
 
         image.dispose()
         batch.dispose()
