@@ -31,7 +31,7 @@ class Road (
     val length = Math.sqrt(((this.x2 - this.x).pow(2) + (this.y2 - this.y).pow(2)).toDouble()).toFloat()
     val angle  = Math.atan2((this.y2 - this.y).toDouble(), (this.x2 - this.x).toDouble()).toFloat() * MathUtils.radDeg
 
-        private val sideLineVector      = lengthVector.rotate(90f).setLength(15f)
+        private val sideLineVector      = lengthVector.cpy().rotate(90f).setLength(15f)
         private val otherSideLineVector = sideLineVector.cpy().setLength(type.roadWidth + 15f)
     /**
      * Represents the lines objects attached to this road are placed on
