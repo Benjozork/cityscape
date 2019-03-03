@@ -39,14 +39,15 @@ class RoadsidePlacementTestTool : EditorTool() {
                     .also      { if (it.isEmpty()) return false }
                     // Cast every element as Road, so that we can use x2/y2
                     .map       { it as Road }
+                    // Get the sidelines for each road and transform them to their vec2 pairs
+                    .flatMap   { it.sideAttachmentLines }
                     // Create a map with the distance from it to the mouse position
-                    .associate { it to Intersector.distanceSegmentPoint(it.x, it.y, it.x2, it.y2, unproj.x, unproj.y) }
+                    .associate { it to Intersector.distanceSegmentPoint(it.first.x, it.first.y, it.second.x, it.second.y, unproj.x, unproj.y) }
                     // Find the nearest road
                     .minBy     { it.value }!!
-                    // If that is too far, return null. If not, select only the key and convert that to a Pair<V2, V2>
+                    // If that is too far, return null. If not, select only the key
                     .takeIf    { it.value < 100f }
                     ?.key
-                    ?.run      { vec2(x, y) to vec2(x2, y2)}
 
             if (nearestRoadLine != null) {
                 parentTool.drawEnabled = true

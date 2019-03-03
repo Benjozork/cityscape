@@ -5,6 +5,9 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Polygon
 
 import ktx.collections.gdxArrayOf
+import ktx.math.minus
+import ktx.math.plus
+import ktx.math.vec2
 
 import me.benjozork.cityscape.game.`object`.model.Object
 import me.benjozork.cityscape.render.RenderingContext
@@ -21,13 +24,22 @@ class Road (
 
     var type: RoadType = type
 
-    val length = Math.sqrt(((this.x2 - this.x).pow(2) + (this.y2 - this.y).pow(2)).toDouble()).toFloat()
-    val angle  = MathUtils.atan2(this.y2 - this.y, this.x2 - this.x) * MathUtils.radDeg
+    val originPoint      = vec2(x, y)
+    val destinationPoint = vec2(x2, y2)
+    val lengthVector     = destinationPoint - originPoint
 
+    val length = Math.sqrt(((this.x2 - this.x).pow(2) + (this.y2 - this.y).pow(2)).toDouble()).toFloat()
+    val angle  = Math.atan2((this.y2 - this.y).toDouble(), (this.x2 - this.x).toDouble()).toFloat() * MathUtils.radDeg
+
+        private val sideLineVector      = lengthVector.rotate(90f).setLength(15f)
+        private val otherSideLineVector = sideLineVector.cpy().setLength(type.roadWidth + 15f)
     /**
      * Represents the lines objects attached to this road are placed on
      */
-    val sideAttachmentLines = gdxArrayOf("")
+    val sideAttachmentLines = gdxArrayOf (
+            originPoint - sideLineVector      to destinationPoint - sideLineVector,
+            originPoint + otherSideLineVector to destinationPoint + otherSideLineVector
+    )
 
     private var sprite = Sprite(type.roadTexture()).apply {
         setPosition(this@Road.x, this@Road.y)
