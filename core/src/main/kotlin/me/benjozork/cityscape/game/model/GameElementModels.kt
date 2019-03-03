@@ -21,3 +21,12 @@ interface Deletable : Selectable {
     fun delete(): Boolean
 
 }
+
+interface Rotatable {
+
+    /**
+     * The rotation in degrees
+     */
+    var rotation: Float
+
+}

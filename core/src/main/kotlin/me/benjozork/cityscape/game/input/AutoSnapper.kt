@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 
 import ktx.collections.GdxArray
+import me.benjozork.cityscape.utils.Line
 
 /**
  * Provides utilities for snapping to lines, angles, etc.
@@ -56,15 +57,15 @@ object AutoSnapper {
     /**
      * Finds the nearest position on any line from [lines] from [providedPosition]
      *
-     * @param providedPosition the base position to use, which will be changed to contain the result of this operation
+     * @param providedPosition the base position to use, which will be changed to contain the result of this operation (also a return parameter)
      * @param lines            the lines we can snap to
      * @param tolerance        the maximum distance to a line for it to be used. -1 = no max
      *
-     * @return whether or not the point was snapped or not
+     * @return whether or not the point was snapped or not, and the corresponding line if such
      */
     fun snapPointOnLines (
             providedPosition: Vector2,
-                       lines: GdxArray<Pair<Vector2, Vector2>>,
+                       lines: GdxArray<Line>,
                    tolerance: Float = -1f
     ): Boolean {
         val nearestLine = lines
