@@ -1,14 +1,16 @@
 package me.benjozork.cityscape.game.editor.tool
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 
+import ktx.collections.toGdxArray
 import ktx.math.vec2
 
 import me.benjozork.cityscape.game.GameWorld
+import me.benjozork.cityscape.game.`object`.TestEntity
 import me.benjozork.cityscape.game.`object`.road.Road
 import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
+import me.benjozork.cityscape.game.input.AutoSnapper
 
 import me.benjozork.cityscape.render.RenderingContext
 
@@ -18,10 +20,10 @@ class RoadsidePlacementTestTool : EditorTool() {
 
     private val circlePos: Vector2 = vec2()
 
-    private var drawEnabled = true
+    private var currentlyDrawing = true
 
     override fun draw() {
-        if (drawEnabled) {
+        if (currentlyDrawing) {
             RenderingContext.switchToShape()
             RenderingContext.shapeRenderer?.circle(circlePos.x, circlePos.y, 100f, 48)
         }
@@ -33,32 +35,24 @@ class RoadsidePlacementTestTool : EditorTool() {
 
             val unproj = Gdx.input.unprojectedPos(RenderingContext.camera!!)
 
-            val nearestRoadLine = GameWorld.objects
-                    // Only keep roads, return if there are not any
-                    .filter    { it is Road }
-                    .also      { if (it.isEmpty()) return false }
-                    // Cast every element as Road, so that we can use their attachment lines
-                    .map       { it as Road }
-                    // Get the sidelines for each road
-                    .flatMap   { it.sideAttachmentLines }
-                    // Create a map with the distance from it to the mouse position
-                    .associate { it to Intersector.distanceSegmentPoint(it.first.x, it.first.y, it.second.x, it.second.y, unproj.x, unproj.y) }
-                    // Find the nearest road
-                    .minBy     { it.value }!!
-                    // If that is too far, return null. If not, select only the key
-                    .takeIf    { it.value < 100f }
-                    ?.key
-
-            if (nearestRoadLine != null) {
-                parentTool.drawEnabled = true
-                Intersector.nearestSegmentPoint(nearestRoadLine.first, nearestRoadLine.second, unproj, parentTool.circlePos)
-            } else parentTool.drawEnabled = false
+            // Use the result of snapPointOnLines to decide whether or not we draw the circle or not
+            if (AutoSnapper.snapPointOnLines (
+                        unproj,
+                        GameWorld.objects.filter { it is Road }.flatMap { (it as Road).sideAttachmentLines }.toGdxArray(),
+                        100f
+            )) {
+                this.parentTool.circlePos.set(unproj); this.parentTool.currentlyDrawing = true
+            } else this.parentTool.currentlyDrawing = false
 
             return true
         }
 
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            return false
+            if (parentTool.currentlyDrawing) {
+                val unproj = Gdx.input.unprojectedPos(RenderingContext.camera!!)
+                GameWorld.registerObject(TestEntity(unproj.x, unproj.y))
+                return true
+            } else return false
         }
 
     }

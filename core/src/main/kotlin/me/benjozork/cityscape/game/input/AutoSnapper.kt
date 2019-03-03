@@ -1,7 +1,14 @@
 package me.benjozork.cityscape.game.input
 
+import com.badlogic.gdx.math.Intersector
+import com.badlogic.gdx.math.Vector2
+
+import ktx.collections.GdxArray
+
 /**
  * Provides utilities for snapping to lines, angles, etc.
+ *
+ * @author Benjozork
  */
 object AutoSnapper {
 
@@ -44,6 +51,33 @@ object AutoSnapper {
 
             return mulAngles.getOrPut(base) { generate() }
         }
+    }
+
+    /**
+     * Finds the nearest position on any line from [lines] from [providedPosition]
+     *
+     * @param providedPosition the base position to use, which will be changed to contain the result of this operation
+     * @param lines            the lines we can snap to
+     * @param tolerance        the maximum distance to a line for it to be used. -1 = no max
+     *
+     * @return whether or not the point was snapped or not
+     */
+    fun snapPointOnLines (
+            providedPosition: Vector2,
+                       lines: GdxArray<Pair<Vector2, Vector2>>,
+                   tolerance: Float = -1f
+    ): Boolean {
+        val nearestLine = lines
+                // Create a map with the distance from it to the mouse position
+                .associate { it to Intersector.distanceSegmentPoint(it.first.x, it.first.y, it.second.x, it.second.y, providedPosition.x, providedPosition.y) }
+                // Find the nearest road
+                .minBy     { it.value }!!
+                // If that is too far, return null. If not, select only the key
+                .takeIf    { it.value < if (tolerance == -1f) Float.MAX_VALUE else tolerance }
+                ?.key ?: return false
+
+        Intersector.nearestSegmentPoint(nearestLine.first, nearestLine.second, providedPosition, providedPosition)
+        return true
     }
 
 }
