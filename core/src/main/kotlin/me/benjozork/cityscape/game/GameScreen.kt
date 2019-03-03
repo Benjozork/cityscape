@@ -53,8 +53,6 @@ class GameScreen(val mapPackage: MapPackage) : Screen() {
     override fun render(delta: Float) {
         clearScreen(0.8f, 0.8f, 0.8f)
 
-        println(Cityscape.assetManager.assetNames)
-
         RenderingContext.update()
         cameraController.update()
 

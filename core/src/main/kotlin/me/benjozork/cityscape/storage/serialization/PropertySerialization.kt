@@ -50,7 +50,7 @@ fun <OC : Serializable> SProp<OC>.serialize(ctx: SerializationContext, target: O
     val targetPropValue = this.get(target)
     return when {
         this.isSerializedAsPrimitive()    ->  targetPropValue.serializeAsPrimitive()
-        this.isAssetReferenceSerialized() ->  targetPropValue.serializeAsAssetReference(ctx).also { println(it.toList()) }
+        this.isAssetReferenceSerialized() ->  targetPropValue.serializeAsAssetReference(ctx)
         else -> (targetPropValue as Serializable).serialize(ctx)
     }
 }
