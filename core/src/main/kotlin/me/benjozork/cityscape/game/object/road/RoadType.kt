@@ -13,12 +13,14 @@ class RoadType(manifest: Manifest, locator: AssetLocator) : ReferenceableAsset(l
 
     val roadTexture = Cityscape.assetManager.get<ReferenceableTexture>(manifest.roadTexturePath)
 
-    val roadSprite = Sprite(roadTexture.texture)
+    val roadWidth = manifest.roadWidth.toFloat()
 
     @Serializable
     class Manifest {
 
-        lateinit var roadTexturePath: String
+        var roadTexturePath = ""
+
+        var roadWidth: Int = 0
 
     }
 

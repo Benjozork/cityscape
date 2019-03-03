@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import ktx.app.clearScreen
 import ktx.collections.toGdxArray
 import ktx.graphics.use
+import me.benjozork.cityscape.Cityscape
 
 import me.benjozork.cityscape.game.editor.tool.RoadTool
 import me.benjozork.cityscape.game.editor.tool.ToolManager
@@ -52,6 +53,8 @@ class GameScreen(val mapPackage: MapPackage) : Screen() {
     override fun render(delta: Float) {
         clearScreen(0.8f, 0.8f, 0.8f)
 
+        println(Cityscape.assetManager.assetNames)
+
         RenderingContext.update()
         cameraController.update()
 
@@ -76,6 +79,7 @@ class GameScreen(val mapPackage: MapPackage) : Screen() {
         with(mapPackage) {
             serializer.init()
 
+            // Separate new objects and existing ones that will be updated
             val toCreate = GameWorld.objects.filter { !this@with.serializer.isStored(it) }.toTypedArray()
             val toUpdate = GameWorld.objects.subtract(toCreate.toList()).toTypedArray()
 

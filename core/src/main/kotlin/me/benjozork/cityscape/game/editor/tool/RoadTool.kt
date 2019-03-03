@@ -2,6 +2,7 @@ package me.benjozork.cityscape.game.editor.tool
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 
@@ -47,6 +48,8 @@ class RoadTool : EditorTool() {
     private var currentX2 = 0f
     private var currentY2 = 0f
 
+    private lateinit var ghostSprite: Sprite
+
     @Suppress("UsePropertyAccessSyntax")
     override fun draw() {
 
@@ -55,7 +58,10 @@ class RoadTool : EditorTool() {
 
         if (currentlyDrawing) {
             RenderingContext.switchToSprite()
-            currentType.roadSprite.apply {
+
+            ghostSprite = Sprite(currentType.roadTexture())
+
+            ghostSprite.apply {
 
                 setPosition(currentX1, currentY1)
                 setOrigin(0f, 0f)
@@ -64,9 +70,9 @@ class RoadTool : EditorTool() {
                 val cathX = currentX2 - currentX1
                 val cathY = currentY2 - currentY1
                 val hypo = Math.sqrt((cathX.pow(2) + cathY.pow(2)).toDouble()).toFloat()
-                setScale(hypo / width, currentType.roadSprite.width / height)
+                setScale(hypo / width, currentType.roadWidth / height)
             }
-            currentType.roadSprite.draw(RenderingContext.spriteBatch)
+            ghostSprite.draw(RenderingContext.spriteBatch)
         }
     }
 
@@ -90,7 +96,7 @@ class RoadTool : EditorTool() {
             if (button == BUTTON_DRAW) {
                 parentTool.currentlyDrawing = true
 
-                parentTool.currentType = Cityscape.assetManager.get(assetDescriptor("road.json"))
+                parentTool.currentType = Cityscape.assetManager.get(assetDescriptor("cityscape:road.json"))
 
                 val unprojected = Gdx.input.unprojectedPos(RenderingContext.camera!!)
                 parentTool.currentX1 = unprojected.x

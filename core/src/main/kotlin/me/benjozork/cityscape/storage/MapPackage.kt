@@ -60,6 +60,9 @@ class MapPackage(root: File) {
 
         private lateinit var dctx: DeserializationContext
 
+        val classMap get() = if (this::dctx.isInitialized) dctx.classMap else null
+        val assetMap get() = if (this::dctx.isInitialized) dctx.assetMap else null
+
         /**
          * This initializes the [DeserializationContext], which is necessary before the package is read
          */
@@ -95,7 +98,8 @@ class MapPackage(root: File) {
                 dctx.assetMap = dctx.deSerializeMap<Int, String>(assetMapPath.source().buffer())
                         .mapValues {
                             @Suppress("UNCHECKED_CAST")
-                            AssetDescriptor(it.value.substringBefore('$'), Class.forName(it.value.substringAfter('$')) as Class<ReferenceableAsset>)
+                            val tempLocator = AssetLocator(it.value)
+                            AssetDescriptor(tempLocator.typeLessString, Class.forName(tempLocator.type) as Class<ReferenceableAsset>)
                         }
                         .toMutableMap()
             } catch (e: Exception) {
@@ -107,7 +111,6 @@ class MapPackage(root: File) {
 
             dctx.initialized = true
         }
-
 
         fun readAssetsToLoad(): GdxArray<AssetDescriptor<ReferenceableAsset>> {
 
@@ -176,7 +179,7 @@ class MapPackage(root: File) {
      *
      * @property sctx This is the [SerializationContext] that is used for serializing *everything* in this package
      */
-    inner class Serializer {
+    inner class Serializer internal constructor() {
 
         private lateinit var sctx: SerializationContext
 
@@ -185,19 +188,29 @@ class MapPackage(root: File) {
          */
         fun init() {
             sctx = SerializationContext()
+            val tempDesrializer = Deserializer()
 
             // Check if classmap/assetmap exist; attempt to create them if not
 
             if (!classMapPath.exists()) {
                 writeClassMap(emptyMap(), sctx)
                 log.debug { "sctx-init: classmap didn't exist, created it" }
+            } else if (classMapPath.length() != 0L) {
+                // If it already exists, we load the existing one so that sctx can use it's contents when serializing
+                tempDesrializer.init()
+                sctx.classMap = tempDesrializer.classMap!!.mapValues { it.value.qualifiedName!! }.toMutableMap()
             }
 
             if (!classMapPath.exists()) {
                 writeAssetMap(emptyMap(), sctx)
                 log.debug { "sctx-init: assetmap didn't exist, created it" }
+            } else if (classMapPath.length() != 0L) {
+                // If it already exists, we load the existing one so that sctx can use it's contents when serializing
+                tempDesrializer.init()
+                sctx.assetMap = tempDesrializer.assetMap!!.mapValues { AssetLocator(it.value.fileName, it.value.type.kotlin) }.toMutableMap()
             }
 
+            // sctx is initialized
             sctx.initialized = true
         }
 
@@ -206,7 +219,7 @@ class MapPackage(root: File) {
          */
         fun close() {
             writeClassMap(sctx.classMap, sctx)
-            writeAssetMap(sctx.assetMap, sctx)
+            writeAssetMap(sctx.assetMap.mapValues { it.value() }, sctx)
 
             sctx.initialized = false
         }
@@ -339,7 +352,7 @@ class MapPackage(root: File) {
     /**
      * Writes the provided assetmap into assetmap.bin
      */
-    internal fun writeAssetMap(map: Map<Int, AssetLocator>, ctx: SerializationContext) {
+    internal fun writeAssetMap(map: Map<Int, String>, ctx: SerializationContext) {
         if (assetMapPath.exists()) assetMapPath.delete()
         assetMapPath.createNewFile()
         assetMapPath.writeBytes(map.serialize(ctx))

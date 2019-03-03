@@ -8,11 +8,11 @@ import me.benjozork.cityscape.storage.model.SerializationContext
 import okio.BufferedSource
 
 /**
+ * Deserializes asset references
  *
+ * @receiver the [SerializationContext] to use
  *
- * @receiver DeserializationContext
- *
- * @param buffer BufferedSource
+ * @param buffer the [BufferedSource] to read from
  */
 fun DeserializationContext.deSerializeAssetReference(buffer: BufferedSource): ReferenceableAsset {
     // Read the reference
@@ -25,28 +25,29 @@ fun DeserializationContext.deSerializeAssetReference(buffer: BufferedSource): Re
 }
 
 /**
+ * Serializes asset references
  *
+ * @receiver [Any]
  *
- * @receiver SProp<OC>
- *
- * @param ctx SerializationContext
- * @param target OC
+ * @param ctx    the [SerializationContext] to use
+ * @param E      the asset reference to write
  */
 fun <E> E?.serializeAsAssetReference(ctx: SerializationContext): ByteArray {
     val targetPropValue = this
 
     (targetPropValue as ReferenceableAsset)
 
-    val locatorSearchResult = ctx.assetMap.entries.find { it.value == targetPropValue.locator }
+    // Look for an existing matching, reference in the assetmap so that we don't create a new one
+    val locatorSearchResult = ctx.assetMap.entries.find { it.value() == targetPropValue.locator() }
 
+    // If there IS an existing matching reference we write the existing one and not the instance currently has
     val value = locatorSearchResult?.key
     if (value != null) {
-        println(value.serializeAsPrimitive().toList() + " existingRef")
         return value.serializeAsPrimitive()
     }
 
+    // If there IS NOT an existing matching reference we write the one this instance currently has
     ctx.assetMap[targetPropValue.reference] = targetPropValue.locator
 
-    println(targetPropValue.reference.serializeAsPrimitive().toList() + " newRef")
     return targetPropValue.reference.serializeAsPrimitive()
 }

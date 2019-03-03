@@ -1,13 +1,20 @@
 package me.benjozork.cityscape.game.editor.ui
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.assets.AssetDescriptor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.utils.Align
 
 import com.kotcrab.vis.ui.widget.VisTable
 
 import ktx.actors.onClick
 import ktx.actors.onClickEvent
+import ktx.vis.KVisTextButton
 import ktx.vis.table
 import ktx.vis.window
+import me.benjozork.cityscape.Cityscape
+import me.benjozork.cityscape.assets.AssetLocator
+import me.benjozork.cityscape.assets.AssetLocatorFileHandleResolver
 
 import me.benjozork.cityscape.game.`object`.model.Object
 
@@ -25,61 +32,83 @@ class EditorUIView : UIView() {
         return table {
             setFillParent(false)
 
-            width = 600f
+            width  = Gdx.graphics.width.toFloat()
+            height = Gdx.graphics.height.toFloat()
 
-            left(); bottom()
+            table {
+                val ta = textArea ("locator")
+                textButton ("add asset") {
+                    onClickEvent { _, a ->
+                        val locator = AssetLocator(ta.text.toString())
+                        val descriptor = AssetDescriptor(AssetLocatorFileHandleResolver().resolve(locator()), Class.forName(locator.type))
+                        Cityscape.assetManager.load(descriptor)
+                        while (!Cityscape.assetManager.isFinished) Cityscape.assetManager.update()
+                    }
+                }
+            }.cell(align = Align.left, growX = true)
 
-            label("Tools ->")
+            row()
+                .growX()
+                .growY()
+            table()
+            row()
 
-            textButton("road") {
-                width = 50f
-                height = 15f
+            table {
 
-                cell(growX = true, spaceRight = 10f)
+                label("Tools ->")
 
-                onClickEvent { e, a ->
-                    ToolManager.switchTool(RoadTool::class)
+                textButton("road") {
+                    width = 50f
+                    height = 15f
+
+                    cell(growX = true, spaceRight = 10f)
+
+                    onClickEvent { e, a ->
+                        ToolManager.switchTool(RoadTool::class)
+                    }
+
                 }
 
-            }
+                textButton("box") {
+                    width = 50f
+                    height = 15f
 
-            textButton("box") {
-                width = 50f
-                height = 15f
+                    cell(growX = true, spaceRight = 10f)
 
-                cell(growX = true, spaceRight = 10f)
+                    onClickEvent { e, a ->
+                        ToolManager.switchTool(BoxPlacerTool::class)
+                    }
 
-                onClickEvent { e, a ->
-                    ToolManager.switchTool(BoxPlacerTool::class)
                 }
 
-            }
+                textButton("selector") {
+                    width = 50f
+                    height = 15f
 
-            textButton("selector") {
-                width = 50f
-                height = 15f
+                    cell(growX = true, spaceRight = 10f)
 
-                cell(growX = true, spaceRight = 10f)
+                    onClickEvent { e, a ->
+                        ToolManager.switchTool(SelectorTool::class)
+                    }
 
-                onClickEvent { e, a ->
-                    ToolManager.switchTool(SelectorTool::class)
                 }
 
-            }
+                textButton("roadside") {
+                    width = 50f
+                    height = 15f
 
-            textButton("roadside") {
-                width = 50f
-                height = 15f
+                    cell(growX = true, spaceRight = 10f)
 
-                cell(growX = true, spaceRight = 10f)
+                    onClickEvent { e, a ->
+                        ToolManager.switchTool(RoadsidePlacementTestTool::class)
+                    }
 
-                onClickEvent { e, a ->
-                    ToolManager.switchTool(RoadsidePlacementTestTool::class)
                 }
 
-            }
+            }.cell(align = Align.left, growX = true)
 
         }
+
     }
 
     /**

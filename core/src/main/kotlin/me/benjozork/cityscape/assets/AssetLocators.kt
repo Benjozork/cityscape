@@ -3,7 +3,10 @@ package me.benjozork.cityscape.assets
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
+
 import me.benjozork.cityscape.storage.model.Serializable
+
+import kotlin.reflect.KClass
 
 private const val NAMESPACE_DELIM = ":"
 private const val TYPE_DELIM = "$"
@@ -19,13 +22,18 @@ private const val TYPE_DELIM = "$"
  *
  * @author Benjozork
  */
-data class AssetLocator(private val stringForm: String) : Serializable() {
+ class AssetLocator(private val stringForm: String) : Serializable() {
+
+    constructor(namespaceAndPath: String, type: KClass<out ReferenceableAsset>)
+            : this("$namespaceAndPath\$${type.qualifiedName}")
 
     val namespace = stringForm.substringBefore(NAMESPACE_DELIM)
 
     val path = stringForm.substringAfter(NAMESPACE_DELIM).substringBefore(TYPE_DELIM)
 
     val type = stringForm.substringAfter(TYPE_DELIM)
+
+    val typeLessString = "$namespace:$path"
 
     operator fun invoke(): String {
         return this.toString()
@@ -41,7 +49,7 @@ data class AssetLocator(private val stringForm: String) : Serializable() {
 }
 
 /**
- * Provides an [FileHandles][FileHandle] for [AssetLocators][AssetLocator]
+ * Provides a [FileHandles][FileHandle] for [AssetLocators][AssetLocator]
  */
 class AssetLocatorFileHandleResolver : FileHandleResolver {
 
@@ -54,7 +62,6 @@ class AssetLocatorFileHandleResolver : FileHandleResolver {
 
         //TODO handle other namespaces
         return Gdx.files.absolute("null")
-
     }
 
 }

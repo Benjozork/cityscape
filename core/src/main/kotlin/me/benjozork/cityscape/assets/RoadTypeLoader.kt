@@ -20,14 +20,14 @@ class RoadTypeLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader<Roa
     private var manifest: RoadType.Manifest? = null
 
     override fun loadSync(manager: AssetManager?, fileName: String?, file: FileHandle?, parameter: RoadTypeParameters?): RoadType {
-        return RoadType(this.manifest!!, AssetLocator(fileName!!))
+        return RoadType(this.manifest!!, AssetLocator(fileName!!, RoadType::class))
     }
 
     override fun loadAsync(manager: AssetManager?, fileName: String?, file: FileHandle?, parameter: RoadTypeParameters?) {
     }
 
     override fun getDependencies(fileName: String?, file: FileHandle?, parameter: RoadTypeParameters?): Array<AssetDescriptor<out Any>> {
-        this.manifest = Json.nonstrict.parse(RoadType.Manifest.serializer(), file!!.readString())
+        this.manifest = Json.nonstrict.parse(RoadType.Manifest.serializer(), file!!.file().readText())
         return gdxArrayOf(assetDescriptor<ReferenceableTexture>(manifest!!.roadTexturePath))
     }
 

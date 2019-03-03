@@ -5,6 +5,13 @@ import me.benjozork.cityscape.assets.ReferenceableAsset
 
 import kotlin.reflect.KClass
 
+/**
+ * Represents the context of an ongoing deserialization
+ *
+ * @property initialized whether this [DeserializationContext] is ready to be used or not
+ * @property classMap    a map of class hashes (as [ints][Int])
+ * @property assetMap    a map of asset refrences (as [ints][Int])
+ */
 class DeserializationContext {
 
     var initialized = false

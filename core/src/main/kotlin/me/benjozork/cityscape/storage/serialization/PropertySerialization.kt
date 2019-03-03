@@ -7,6 +7,7 @@ import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable
 import me.benjozork.cityscape.storage.model.SerializationContext
 import me.benjozork.cityscape.storage.model.SerializeReference
+
 import okio.BufferedSource
 
 import kotlin.reflect.KClass
@@ -15,6 +16,14 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 
+/**
+ * Provides the list of props that should be serialized for a given [Serializable] class.
+ * Only mutable properties that are NOT private and are not annotated with [NotSerialized] will be returned.
+ *
+ * @receiver a [KClass] that extends [Serializable]
+ *
+ * @return a [Map] of the property hash (as an [Int]) to the property itself [SProp]
+ */
 @Suppress("UNCHECKED_CAST")
 fun <OC : Serializable> KClass<out OC>.serializedProps(): Map<Int, SProp<OC>> { //@TODO takes a lot of time
     return (memberProperties
@@ -28,13 +37,14 @@ fun <OC : Serializable> KClass<out OC>.serializedProps(): Map<Int, SProp<OC>> { 
 }
 
 /**
+ * Serializes an object property
  *
+ * @receiver [SProp]
  *
- * @receiver SProp<OC>
+ * @param ctx    the [DeserializationContext] to use
+ * @param target the object property to write
  *
- * @param target OC
- *
- * @return ByteArray
+ * @return the result of the serialization as a [ByteArray]
  */
 fun <OC : Serializable> SProp<OC>.serialize(ctx: SerializationContext, target: OC): ByteArray {
     val targetPropValue = this.get(target)
@@ -46,13 +56,14 @@ fun <OC : Serializable> SProp<OC>.serialize(ctx: SerializationContext, target: O
 }
 
 /**
+ * Deserializes an object property
  *
+ * @receiver [SProp]
  *
- * @receiver SProp<OC>
+ * @param ctx    the [DeserializationContext] to use
+ * @param buffer the [BufferedSource] to read from
  *
- * @param source ByteArray
- *
- * @return Any
+ * @return the result of the deserialization (as [Any])
  */
 fun <OC : Serializable> SProp<OC>.deSerialize(ctx: DeserializationContext, buffer: BufferedSource): Any {
     val propTypeClass = this.returnType.classifier as KClass<*>
@@ -65,7 +76,7 @@ fun <OC : Serializable> SProp<OC>.deSerialize(ctx: DeserializationContext, buffe
 }
 
 /**
- *
+ * Checks whether or not an object property should be serialized as a primitive
  *
  * @receiver Any?
  *
@@ -77,12 +88,11 @@ fun <OC : Serializable> SProp<OC>.isSerializedAsPrimitive(): Boolean {
 }
 
 /**
- * Checks whether or not an object property should be serialized fully o-r by reference,
- * through the use of the [NotSerialized] annotation.
+ * Checks whether or not an object property should be serialized as an asset reference
  *
  * @receiver SProp<OC>
  *
- * @return Boolean
+ * @return the result of the check
  */
 fun <OC : Serializable> SProp<OC>.isAssetReferenceSerialized(): Boolean {
     return (this.returnType.classifier as KClass<*>).isSubclassOf(ReferenceableAsset::class)
@@ -90,11 +100,11 @@ fun <OC : Serializable> SProp<OC>.isAssetReferenceSerialized(): Boolean {
 
 /**
  * Checks whether or not an object property should be serialized fully or by reference,
- * through the use of the [NotSerialized] annotation.
+ * through the use of the [NotSerialized] annotation
  *
- * @receiver SProp<OC>
+ * @receiver [SProp]
  *
- * @return Boolean
+ * @return the result of the check
  */
 fun <OC : Serializable> SProp<OC>.isReferenceSerialized(): Boolean {
     return this.annotations.any { it is SerializeReference }
@@ -102,11 +112,11 @@ fun <OC : Serializable> SProp<OC>.isReferenceSerialized(): Boolean {
 
 /**
  * Checks whether or not an object property should be serialized or not, through the use
- * of the [NotSerialized] annotation.
+ * of the [NotSerialized] annotation
  *
- * @receiver SProp<OC>
+ * @receiver [SProp]
  *
- * @return Boolean
+ * @return the result of the check
  */
 fun <OC : Serializable> SProp<OC>.isSerialized(): Boolean {
     return this.annotations.none { it is NotSerialized }

@@ -10,6 +10,7 @@ import com.kotcrab.vis.ui.VisUI
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.async.enableKtxCoroutines
+import me.benjozork.cityscape.assets.AssetLocatorFileHandleResolver
 
 import me.benjozork.cityscape.assets.ReferenceableTexture
 import me.benjozork.cityscape.assets.ReferenceableTextureLoader
@@ -30,8 +31,8 @@ object Cityscape : KtxGame<KtxScreen>() {
 
         Gdx.app.logLevel = Application.LOG_DEBUG
 
-        assetManager.setLoader(ReferenceableTexture::class.java, ReferenceableTextureLoader(InternalFileHandleResolver()))
-        assetManager.setLoader(RoadType::class.java, RoadTypeLoader(InternalFileHandleResolver()))
+        assetManager.setLoader(ReferenceableTexture::class.java, ReferenceableTextureLoader(AssetLocatorFileHandleResolver()))
+        assetManager.setLoader(RoadType::class.java, RoadTypeLoader(AssetLocatorFileHandleResolver()))
 
         RenderingContext.intialize()
         VisUI.load()
