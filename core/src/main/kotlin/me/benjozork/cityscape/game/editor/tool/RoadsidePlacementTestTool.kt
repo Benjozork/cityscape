@@ -13,6 +13,7 @@ import me.benjozork.cityscape.game.editor.tool.model.ToolInputProcessor
 import me.benjozork.cityscape.game.input.AutoSnapper
 
 import me.benjozork.cityscape.render.RenderingContext
+import me.benjozork.cityscape.utils.angle
 
 import me.benjozork.cityscape.utils.unprojectedPos
 
@@ -21,6 +22,7 @@ class RoadsidePlacementTestTool : EditorTool() {
     private val circlePos: Vector2 = vec2()
 
     private var currentlyDrawing = true
+    private var currentAngle = 0f
 
     override fun draw() {
         if (currentlyDrawing) {
@@ -50,7 +52,7 @@ class RoadsidePlacementTestTool : EditorTool() {
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             if (parentTool.currentlyDrawing) {
                 val unproj = Gdx.input.unprojectedPos(RenderingContext.camera!!)
-                GameWorld.registerObject(TestEntity(unproj.x, unproj.y))
+                GameWorld.registerObject(TestEntity(x = parentTool.circlePos.x, y = parentTool.circlePos.y, rotation = parentTool.currentAngle))
                 return true
             } else return false
         }

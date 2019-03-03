@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Polygon
 
+import ktx.collections.GdxArray
 import ktx.collections.gdxArrayOf
 import ktx.math.minus
 import ktx.math.plus
@@ -11,6 +12,7 @@ import ktx.math.vec2
 
 import me.benjozork.cityscape.game.`object`.model.Object
 import me.benjozork.cityscape.render.RenderingContext
+import me.benjozork.cityscape.utils.Line
 
 import kotlin.math.pow
 
@@ -36,7 +38,7 @@ class Road (
     /**
      * Represents the lines objects attached to this road are placed on
      */
-    val sideAttachmentLines = gdxArrayOf (
+    val sideAttachmentLines: GdxArray<Line> = gdxArrayOf (
             originPoint - sideLineVector      to destinationPoint - sideLineVector,
             originPoint + otherSideLineVector to destinationPoint + otherSideLineVector
     )
