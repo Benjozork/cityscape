@@ -37,7 +37,7 @@ class RoadsidePlacementTestTool : EditorTool() {
                     // Only keep roads, return if there are not any
                     .filter    { it is Road }
                     .also      { if (it.isEmpty()) return false }
-                    // Cast every element as Road, so that we can their attachment lines
+                    // Cast every element as Road, so that we can use their attachment lines
                     .map       { it as Road }
                     // Get the sidelines for each road and transform them to their vec2 pairs
                     .flatMap   { it.sideAttachmentLines }
