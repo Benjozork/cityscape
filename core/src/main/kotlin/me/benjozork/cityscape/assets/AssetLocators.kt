@@ -49,7 +49,7 @@ private const val TYPE_DELIM = "$"
 }
 
 /**
- * Provides a [FileHandles][FileHandle] for [AssetLocators][AssetLocator]
+ * Provides a [FileHandle] for [AssetLocators][AssetLocator]
  */
 class AssetLocatorFileHandleResolver : FileHandleResolver {
 
