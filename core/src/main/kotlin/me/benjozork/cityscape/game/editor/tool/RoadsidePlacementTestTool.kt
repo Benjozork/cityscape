@@ -39,7 +39,7 @@ class RoadsidePlacementTestTool : EditorTool() {
                     .also      { if (it.isEmpty()) return false }
                     // Cast every element as Road, so that we can use their attachment lines
                     .map       { it as Road }
-                    // Get the sidelines for each road and transform them to their vec2 pairs
+                    // Get the sidelines for each road
                     .flatMap   { it.sideAttachmentLines }
                     // Create a map with the distance from it to the mouse position
                     .associate { it to Intersector.distanceSegmentPoint(it.first.x, it.first.y, it.second.x, it.second.y, unproj.x, unproj.y) }
