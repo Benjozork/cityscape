@@ -65,8 +65,6 @@ class Road (
     override fun draw() {
         RenderingContext.switchToSprite()
         sprite.draw(RenderingContext.spriteBatch)
-        RenderingContext.switchToShape()
-        RenderingContext.shapeRenderer?.circle(x, y, 100f)
     }
 
     override fun delete(): Boolean {
