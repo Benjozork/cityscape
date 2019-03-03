@@ -80,7 +80,7 @@ class RoadTool : EditorTool() {
 
         override fun keyDown(keycode: Int): Boolean {
             return if (keycode == KEY_ANGLE_SNAP) {
-                parentTool.angleSnappingEnabled = false
+                parentTool.angleSnappingEnabled = true
                 true
             } else false
         }
