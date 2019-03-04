@@ -38,10 +38,10 @@ class RoadsidePlacementTestTool : EditorTool() {
             val unproj = Gdx.input.unprojectedPos(RenderingContext.camera!!)
 
             // Use the result of snapPointOnLines to decide whether or not we draw the circle or not
-            val (snapOccured, snapLine) = AutoSnapper.snapPointOnLines(
-                    unproj,
-                    GameWorld.objects.filter { it is Road }.flatMap { (it as Road).sideAttachmentLines }.toGdxArray(),
-                    100f
+            val (snapOccured, snapLine) = AutoSnapper.snapPointOnLines (
+                    point     = unproj,
+                    lines     = GameWorld.objects.filter { it is Road }.flatMap { (it as Road).sideAttachmentLines }.toGdxArray(),
+                    tolerance = 100f
             )
 
             if (snapOccured) {
@@ -55,7 +55,6 @@ class RoadsidePlacementTestTool : EditorTool() {
 
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             if (parentTool.currentlyDrawing) {
-                val unproj = Gdx.input.unprojectedPos(RenderingContext.camera!!)
                 GameWorld.registerObject(TestEntity(x = parentTool.circlePos.x, y = parentTool.circlePos.y, rotation = parentTool.currentAngle))
                 return true
             } else return false
