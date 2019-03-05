@@ -47,7 +47,7 @@ internal inline fun <reified E: Any> Set<E>.serialize(ctx: SerializationContext)
     val payload = listOf(*this.map {
         when {
             E::class.isSubclassOf(Serializable::class) -> {
-                (it as Serializable).serialize(ctx)
+                (it as Serializable).serializeObject(ctx)
             }
 
             else ->
@@ -98,7 +98,7 @@ internal inline fun <reified E: Any> List<E>.serialize(ctx: SerializationContext
     val payload = listOf(*this.map {
         when {
             E::class.isSubclassOf(Serializable::class) ->
-                (it as Serializable).serialize(ctx)
+                (it as Serializable).serializeObject(ctx)
 
             else ->
                 it.serializeAsPrimitive()

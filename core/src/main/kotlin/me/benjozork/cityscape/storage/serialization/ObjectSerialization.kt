@@ -7,7 +7,6 @@ import me.benjozork.cityscape.storage.model.SerializationContext
 
 import okio.Buffer
 import okio.BufferedSource
-import java.util.zip.Adler32
 
 import kotlin.reflect.KClass
 
@@ -19,7 +18,7 @@ import kotlin.reflect.KClass
  * @return ByteArray
  */
 @Suppress("UNCHECKED_CAST")
-internal inline fun <reified OC : Serializable> OC.serialize(ctx: SerializationContext): ByteArray {
+internal inline fun <reified OC : Serializable> OC.serializeObject(ctx: SerializationContext): ByteArray {
     val props = this::class.serializedProps()
 
     val finalBytes = mutableListOf<Byte>()
@@ -40,6 +39,22 @@ internal inline fun <reified OC : Serializable> OC.serialize(ctx: SerializationC
         finalBytes.addAll(v.serialize(ctx, this).toTypedArray())
     }
     return finalBytes.toByteArray()
+}
+
+/**
+ * Serializes the receiver [Serializable] into a [ByteArray] of it's reference
+ *
+ * @receiver the object to serialize
+ *
+ * @return ByteArray
+ */
+internal fun <E : Serializable> E.serializeAsObjectReference(ctx: SerializationContext): ByteArray {
+
+    val ref = this.reference
+
+    ctx.serializeObjByRef(this)
+
+    return this.reference.getBytes()
 }
 
 /**
@@ -84,4 +99,12 @@ fun DeserializationContext.deSerializeObject(buffer: BufferedSource, targetRefer
     inst.reference = targetReference
 
     return inst
+}
+
+fun DeserializationContext.deSerializeObjectReference(buffer: BufferedSource): Serializable {
+
+    // Read reference
+    val reference = buffer.readInt()
+
+    return this.getDeserializedObjByRef(reference)
 }

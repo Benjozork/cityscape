@@ -1,6 +1,7 @@
 package me.benjozork.cityscape.storage.model
 
 import me.benjozork.cityscape.assets.AssetLocator
+import me.benjozork.cityscape.storage.MapPackage
 
 import kotlin.random.Random
 import kotlin.reflect.KMutableProperty1
@@ -63,7 +64,7 @@ open class Referenceable {
  */
 open class Serializable : Referenceable()
 
-class SerializationContext {
+class SerializationContext(private val serializer: MapPackage.Serializer) {
 
     var initialized = false
 
@@ -72,4 +73,9 @@ class SerializationContext {
 
     var assetMap = mutableMapOf<Int, AssetLocator>()
         internal set
+
+    fun serializeObjByRef(obj: Serializable) {
+        if (!this.serializer.isStored(obj)) this.serializer.addObject(obj)
+    }
+
 }

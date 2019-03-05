@@ -12,21 +12,23 @@ import me.benjozork.cityscape.assets.ReferenceableAsset
 import me.benjozork.cityscape.exception
 import me.benjozork.cityscape.game.`object`.model.Object
 import me.benjozork.cityscape.storage.model.DeserializationContext
+import me.benjozork.cityscape.storage.model.Serializable
 import me.benjozork.cityscape.storage.model.SerializationContext
 import me.benjozork.cityscape.storage.serialization.deSerializeObject
 import me.benjozork.cityscape.storage.serialization.deSerializeMap
 import me.benjozork.cityscape.storage.serialization.serialize
+import me.benjozork.cityscape.storage.serialization.serializeObject
 
 import okio.buffer
 import okio.source
 
 import java.io.File
 
-private const val OBJECT_DIR_PATH = "/_objects/"
-private const val OBJECT_FILE_EXT = "bin"
+const val OBJECT_DIR_PATH = "/_objects/"
+const val OBJECT_FILE_EXT = "bin"
 
-private const val CLASSMAP_PATH = "/classmap.bin"
-private const val ASSETMAP_PATH = "/assetmap.bin"
+const val CLASSMAP_PATH = "/classmap.bin"
+const val ASSETMAP_PATH = "/assetmap.bin"
 
 /**
  * This class represents a decompressed, extracted map package located within a single folder.
@@ -52,11 +54,13 @@ class MapPackage(root: File) {
     val serializer   = this.Serializer()
 
     /**
-     * Deserializer compoennt of the loaded package
+     * Deserializer compoennt of the loaded packae
      *
      * @property dctx This is the [DeserializationContext] that is used for de-serializing *everything* in this package
      */
     inner class Deserializer internal constructor() {
+
+        val parentPackage = this@MapPackage
 
         private lateinit var dctx: DeserializationContext
 
@@ -67,9 +71,9 @@ class MapPackage(root: File) {
          * This initializes the [DeserializationContext], which is necessary before the package is read
          */
         fun init() {
-            dctx = DeserializationContext()
+            dctx = DeserializationContext(this)
 
-            val tempSctx = SerializationContext()
+            val tempSctx = SerializationContext(this@MapPackage.serializer)
 
             if (!classMapPath.exists()) {
                 writeClassMap(emptyMap(), tempSctx)
@@ -181,13 +185,15 @@ class MapPackage(root: File) {
      */
     inner class Serializer internal constructor() {
 
+        val parentPackage = this@MapPackage
+
         private lateinit var sctx: SerializationContext
 
         /**
          * This initializes the [SerializationContext], which is necessary before the package is written to
          */
         fun init() {
-            sctx = SerializationContext()
+            sctx = SerializationContext(this)
             val tempDesrializer = Deserializer()
 
             // Check if classmap/assetmap exist; attempt to create them if not
@@ -228,7 +234,7 @@ class MapPackage(root: File) {
          * Adds an object into the package.
          * @param obj the object to add
          */
-        fun addObject(obj: Object) {
+        fun addObject(obj: Serializable) {
 
             // If sctx is not initialized
             if (!sctx.initialized) {
@@ -245,8 +251,8 @@ class MapPackage(root: File) {
             }
 
             try {
-                targetObjFile.createNewFile()                 // Write object file
-                targetObjFile.writeBytes(obj.serialize(sctx)) // -----------------
+                targetObjFile.createNewFile()                       // Write object file
+                targetObjFile.writeBytes(obj.serializeObject(sctx)) // -----------------
             } catch (e: Exception) {
                 log.exception("map package can't be updated: couldn't write object ${obj.reference}: error occured during writing", e)
                 return
@@ -319,7 +325,7 @@ class MapPackage(root: File) {
                 return
             }
 
-            targetObjFile.writeBytes(obj.serialize(sctx))
+            targetObjFile.writeBytes(obj.serializeObject(sctx))
 
         }
 
@@ -334,7 +340,7 @@ class MapPackage(root: File) {
         /**
          * @return whether the object is already stored or not
          */
-        fun isStored(obj: Object): Boolean {
+        fun isStored(obj: Serializable): Boolean {
             return objectsRoot.list().contains("${obj.reference}.$OBJECT_FILE_EXT")
         }
 

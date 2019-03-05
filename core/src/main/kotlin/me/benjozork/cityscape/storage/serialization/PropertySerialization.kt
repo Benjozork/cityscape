@@ -6,7 +6,6 @@ import me.benjozork.cityscape.storage.model.NotSerialized
 import me.benjozork.cityscape.storage.model.SProp
 import me.benjozork.cityscape.storage.model.Serializable
 import me.benjozork.cityscape.storage.model.SerializationContext
-import me.benjozork.cityscape.storage.model.SerializeReference
 
 import okio.BufferedSource
 
@@ -51,7 +50,8 @@ fun <OC : Serializable> SProp<OC>.serialize(ctx: SerializationContext, target: O
     return when {
         this.isSerializedAsPrimitive()    ->  targetPropValue.serializeAsPrimitive()
         this.isAssetReferenceSerialized() ->  targetPropValue.serializeAsAssetReference(ctx)
-        else -> (targetPropValue as Serializable).serialize(ctx)
+        this.isSerialized()               -> (targetPropValue as Serializable).serializeAsObjectReference(ctx)
+        else -> error("can't serialize property: it is neither of primitive type, referenceable or serializable")
     }
 }
 
@@ -70,7 +70,7 @@ fun <OC : Serializable> SProp<OC>.deSerialize(ctx: DeserializationContext, buffe
     return when {
         this.isSerializedAsPrimitive()    -> ctx.deSerializeNextPrimitive(propTypeClass, buffer)
         this.isAssetReferenceSerialized() -> ctx.deSerializeAssetReference(buffer)
-        this.isSerialized()               -> ctx.deSerializeObject(buffer, 0)
+        this.isSerialized()               -> ctx.deSerializeObjectReference(buffer)
         else -> error("can't dserialize property: it is neither of primitive type, referenceable or serializable")
     }
 }
@@ -96,18 +96,6 @@ fun <OC : Serializable> SProp<OC>.isSerializedAsPrimitive(): Boolean {
  */
 fun <OC : Serializable> SProp<OC>.isAssetReferenceSerialized(): Boolean {
     return (this.returnType.classifier as KClass<*>).isSubclassOf(ReferenceableAsset::class)
-}
-
-/**
- * Checks whether or not an object property should be serialized fully or by reference,
- * through the use of the [NotSerialized] annotation
- *
- * @receiver [SProp]
- *
- * @return the result of the check
- */
-fun <OC : Serializable> SProp<OC>.isReferenceSerialized(): Boolean {
-    return this.annotations.any { it is SerializeReference }
 }
 
 /**
