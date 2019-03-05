@@ -56,9 +56,9 @@ class Road (
             length, type.roadWidth,
             0f,     type.roadWidth
     )).apply {
-        setPosition(this@Road.x, this@Road.y)
-        setOrigin(0f, 0f)
-        setRotation(angle)
+            setPosition(this@Road.x, this@Road.y)
+            setOrigin(0f, 0f)
+            setRotation(angle)
     }
 
     override fun update() {

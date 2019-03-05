@@ -1,7 +1,5 @@
 package me.benjozork.cityscape.game.`object`.road
 
-import com.badlogic.gdx.graphics.g2d.Sprite
-
 import kotlinx.serialization.Serializable
 
 import me.benjozork.cityscape.Cityscape

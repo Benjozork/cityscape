@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 
 import ktx.collections.GdxArray
+
 import me.benjozork.cityscape.utils.Line
 
 /**
@@ -64,8 +65,8 @@ object AutoSnapper {
      * @return whether or not the point was snapped or not, and the corresponding line if such
      */
     fun snapPointOnLines (
-            point: Vector2,
-            lines: GdxArray<Line>,
+            point:     Vector2,
+            lines:     GdxArray<Line>,
             tolerance: Float = -1f
     ): Pair<Boolean, Line?> {
         val nearestLine = lines
