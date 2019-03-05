@@ -17,11 +17,16 @@ import kotlin.reflect.KFunction
 internal fun fabricateInstance(target: KClass<Serializable>, propMap: Map<SProp<Serializable>, Any?>): Serializable {
     val ctor = findAdequateConstructor(target, propMap) ?: error("no adequate constructor found for class \"${target.simpleName}\"")
 
-    val alignedCtorCallPayload = propMap.entries.sortedBy { (prop, _) ->
-        ctor.parameters.indexOfFirst {
-            it.name == prop.name && it.type == prop.returnType
-        }
-    }.map { it.value }.toTypedArray()
+    val alignedCtorCallPayload = propMap.entries
+            .associate { (prop, value) ->
+                ctor.parameters.indexOfFirst {
+                    it.name == prop.name && it.type == prop.returnType
+                } to (prop to value)
+            }
+            .filter { it.key != -1 }
+            .toSortedMap()
+            .map { it.value.second }
+            .toTypedArray()
 
     return ctor.call(*alignedCtorCallPayload)
 }
